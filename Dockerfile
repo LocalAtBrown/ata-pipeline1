@@ -13,5 +13,5 @@ FROM python:3.9.16-slim as runner
 # run any updates and run dependencies here
 # RUN apt-get update && apt-get install --no-install-recommends -y libpq-dev
 COPY --from=builder /root/.local /root/.local
-COPY /src/ /src/
+COPY /ata_pipeline1/ /ata_pipeline1
 ENV PATH=/root/.local/bin:$PATH
