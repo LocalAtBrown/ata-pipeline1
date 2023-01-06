@@ -25,6 +25,8 @@ def fetch_events(
             Event.event_name.in_(event_types),
         )
         results = session.execute(statement)
+        data = [event[0].dict() for event in results]
+        print(data)
 
     # convert to dataframe
-    return pd.DataFrame(data=[event.dict() for event in results])
+    return pd.DataFrame(data=data)
