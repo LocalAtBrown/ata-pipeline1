@@ -45,7 +45,7 @@ to see more options.
 
 ### Run Static Type Checking
 
-To manually run mypy, simply run `mypy .` from the root directory of the project. It will use the default configuration
+To manually run mypy, simply run `mypy` from the root directory of the project. It will use the default configuration
 specified in `pyproject.toml`.
 
 ### Update Dependencies
