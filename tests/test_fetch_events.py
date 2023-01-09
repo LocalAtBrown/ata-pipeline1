@@ -13,10 +13,15 @@ from ata_pipeline1.helpers.enums import EventName, SiteName
 
 
 @pytest.fixture
-def single_event() -> Event:
+def current_timestamp() -> datetime:
+    return datetime.now()
+
+
+@pytest.fixture
+def single_event(current_timestamp: datetime) -> Event:
     return Event(
         site_name=SiteName.AFRO_LA,
-        derived_tstamp=datetime.now(),
+        derived_tstamp=current_timestamp,
         doc_height=100,
         domain_sessionidx=1,
         domain_userid=uuid4(),
@@ -46,7 +51,9 @@ def create_and_drop_tables(engine: Engine) -> Generator[None, None, None]:
         SQLModel.metadata.drop_all(engine)
 
 
-def test_fetch_events(single_event: Event, engine: Engine, session_factory: sessionmaker) -> None:
+def test_fetch_events(
+    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
+) -> None:
     # need to grab dict from event before putting in db, session and sqlmodel object mutate over time
     event_as_dict = single_event.dict()
     # create table in db
@@ -59,8 +66,8 @@ def test_fetch_events(single_event: Event, engine: Engine, session_factory: sess
         df = fetch_events(
             site_name=SiteName.AFRO_LA,
             event_types=[EventName.PAGE_PING],
-            start=datetime.now() - timedelta(minutes=5),
-            end=datetime.now() + timedelta(minutes=5),
+            start=current_timestamp - timedelta(minutes=5),
+            end=current_timestamp + timedelta(minutes=5),
             session_factory=session_factory,
         )
 
@@ -70,7 +77,9 @@ def test_fetch_events(single_event: Event, engine: Engine, session_factory: sess
     assert event_as_dict == data[0]
 
 
-def test_fetch_events_wrong_site(single_event: Event, engine: Engine, session_factory: sessionmaker) -> None:
+def test_fetch_events_wrong_site(
+    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
+) -> None:
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
@@ -81,8 +90,8 @@ def test_fetch_events_wrong_site(single_event: Event, engine: Engine, session_fa
         df = fetch_events(
             site_name=SiteName.DALLAS_FREE_PRESS,
             event_types=[EventName.PAGE_PING],
-            start=datetime.now() - timedelta(minutes=5),
-            end=datetime.now() + timedelta(minutes=5),
+            start=current_timestamp - timedelta(minutes=5),
+            end=current_timestamp + timedelta(minutes=5),
             session_factory=session_factory,
         )
 
@@ -90,7 +99,9 @@ def test_fetch_events_wrong_site(single_event: Event, engine: Engine, session_fa
     assert df.empty
 
 
-def test_fetch_events_wrong_events(single_event: Event, engine: Engine, session_factory: sessionmaker) -> None:
+def test_fetch_events_wrong_events(
+    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
+) -> None:
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
@@ -101,8 +112,8 @@ def test_fetch_events_wrong_events(single_event: Event, engine: Engine, session_
         df = fetch_events(
             site_name=SiteName.AFRO_LA,
             event_types=[EventName.PAGE_VIEW],
-            start=datetime.now() - timedelta(minutes=5),
-            end=datetime.now() + timedelta(minutes=5),
+            start=current_timestamp - timedelta(minutes=5),
+            end=current_timestamp + timedelta(minutes=5),
             session_factory=session_factory,
         )
 
@@ -110,7 +121,9 @@ def test_fetch_events_wrong_events(single_event: Event, engine: Engine, session_
     assert df.empty
 
 
-def test_fetch_events_wrong_time(single_event: Event, engine: Engine, session_factory: sessionmaker) -> None:
+def test_fetch_events_wrong_time(
+    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
+) -> None:
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
@@ -121,8 +134,8 @@ def test_fetch_events_wrong_time(single_event: Event, engine: Engine, session_fa
         df = fetch_events(
             site_name=SiteName.AFRO_LA,
             event_types=[EventName.PAGE_PING],
-            start=datetime.now() + timedelta(minutes=5),
-            end=datetime.now() + timedelta(minutes=10),
+            start=current_timestamp + timedelta(minutes=5),
+            end=current_timestamp + timedelta(minutes=10),
             session_factory=session_factory,
         )
 
