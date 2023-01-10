@@ -20,6 +20,7 @@ pre-commit = "^2.19.0"
 pytest = "^7.1.2"
 pandas-stubs = "^1.5.1"
 sqlalchemy-stubs = "^0.4"
+notebook = "^6.5.2"
 
 
 [build-system]
