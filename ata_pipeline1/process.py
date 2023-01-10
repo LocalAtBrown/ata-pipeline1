@@ -1,6 +1,6 @@
 """
 This is a dummy function and maybe even a dummy file (almost definitely will be renamed, at least).
-Placehold for "do things with event data and spit out prescriptions".
+Placeholder for "do things with event data and spit out prescriptions".
 """
 from datetime import datetime
 
