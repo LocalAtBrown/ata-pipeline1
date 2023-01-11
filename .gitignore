@@ -167,4 +167,4 @@ cython_debug/
 .vscode/
 
 # Notebook data
-./notebooks/data/
+notebooks/data/
