@@ -15,7 +15,7 @@ tz = ["python-dateutil"]
 
 [[package]]
 name = "ata-db-models"
-version = "0.0.11"
+version = "0.0.12"
 description = "Database models and migrations for Automating the Ask."
 category = "main"
 optional = false
@@ -402,7 +402,7 @@ xray = ["mypy-boto3-xray (>=1.26.0,<1.27.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.44"
+version = "1.29.46"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -418,7 +418,7 @@ crt = ["awscrt (==0.15.3)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.29.44"
+version = "1.29.46"
 description = "Type annotations and code completion for botocore"
 category = "main"
 optional = false
@@ -499,11 +499,11 @@ license = ["ukkonen"]
 
 [[package]]
 name = "iniconfig"
-version = "1.1.1"
-description = "iniconfig: brain-dead simple config-ini parsing"
+version = "2.0.0"
+description = "brain-dead simple config-ini parsing"
 category = "dev"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [[package]]
 name = "jmespath"
@@ -595,7 +595,7 @@ python-versions = ">=3.8"
 
 [[package]]
 name = "packaging"
-version = "22.0"
+version = "23.0"
 description = "Core utilities for Python packages"
 category = "dev"
 optional = false
@@ -916,7 +916,7 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9.16"
-content-hash = "32b2b78d80df55d6e9a03e7a9ea3130f4289db811ec344dccda9aa988e2efbc5"
+content-hash = "46d0d9f768b5f4574c9fc17e1d15d7547aa35bb55a28ff242383be2fa7e3d514"
 
 [metadata.files]
 alembic = [
@@ -924,8 +924,8 @@ alembic = [
     {file = "alembic-1.8.1.tar.gz", hash = "sha256:cd0b5e45b14b706426b833f06369b9a6d5ee03f826ec3238723ce8caaf6e5ffa"},
 ]
 ata-db-models = [
-    {file = "ata-db-models-0.0.11.tar.gz", hash = "sha256:aa913f4326483398255e01bcc7c70bbb0f3d464bb03c41322be15c10b1919d2d"},
-    {file = "ata_db_models-0.0.11-py3-none-any.whl", hash = "sha256:6dfaddbe97da34a82cd2c9e5c337e5f72227953acaab30a0c00a81f5ab2c264f"},
+    {file = "ata-db-models-0.0.12.tar.gz", hash = "sha256:8b94ab599f6fb154a870ea2b3234668c9a0e4a87cb57fd249774148f5eec0398"},
+    {file = "ata_db_models-0.0.12-py3-none-any.whl", hash = "sha256:bb192be3d026f592d273e65ae21074c5db916a9e7bbff18ac18eb7a21ec2d73f"},
 ]
 attrs = [
     {file = "attrs-22.2.0-py3-none-any.whl", hash = "sha256:29e95c7f6778868dbd49170f98f8818f78f3dc5e0e37c0b1f474e3561b240836"},
@@ -940,12 +940,12 @@ boto3-stubs = [
     {file = "boto3_stubs-1.26.13-py3-none-any.whl", hash = "sha256:466f1d3bfb8d17cef05ab75d459004411c08a74d247f0d38f6c3706005f7fc1c"},
 ]
 botocore = [
-    {file = "botocore-1.29.44-py3-none-any.whl", hash = "sha256:d4c10df0946ada82827b9f5323c43ba2ee5e81ae9c2acfbd2c59f65668c27863"},
-    {file = "botocore-1.29.44.tar.gz", hash = "sha256:e48371ff2c375f6a5ac2e6cdbb2d32aa14b1c9c0c049f12af96ec5614c55a6f1"},
+    {file = "botocore-1.29.46-py3-none-any.whl", hash = "sha256:dbac2fde265f13beb9191ec3ff63b90b515e9ed63875edc3afbd72c5f585e48b"},
+    {file = "botocore-1.29.46.tar.gz", hash = "sha256:78bf25933e35eb6354a9e80fe156f86dce4d346a92afe364dfce25c17ab0639f"},
 ]
 botocore-stubs = [
-    {file = "botocore_stubs-1.29.44-py3-none-any.whl", hash = "sha256:e0d846130484ca1bf414482787efec9e85ea8bd2be54cffae10da9be21163d8d"},
-    {file = "botocore_stubs-1.29.44.tar.gz", hash = "sha256:598c42b3b5bcf80ac4a210a68c2592a3575f565acca2b34f260ee302ca1084ec"},
+    {file = "botocore_stubs-1.29.46-py3-none-any.whl", hash = "sha256:606795601c6774dcc0fbcb39eeccf8ba1d3cdbd233bbda45df7af57033673c9c"},
+    {file = "botocore_stubs-1.29.46.tar.gz", hash = "sha256:eef248aae1e6086787a194eb2cc73fb8a6bcf1f0000eca0b5e88d72bcdf1a8d1"},
 ]
 cfgv = [
     {file = "cfgv-3.3.1-py2.py3-none-any.whl", hash = "sha256:c6a0883f3917a037485059700b9e75da2464e6c27051014ad85ba6aaa5884426"},
@@ -1034,8 +1034,8 @@ identify = [
     {file = "identify-2.5.12.tar.gz", hash = "sha256:0bc96b09c838310b6fcfcc61f78a981ea07f94836ef6ef553da5bb5d4745d662"},
 ]
 iniconfig = [
-    {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
-    {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
+    {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
+    {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
 ]
 jmespath = [
     {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
@@ -1155,8 +1155,8 @@ numpy = [
     {file = "numpy-1.24.1.tar.gz", hash = "sha256:2386da9a471cc00a1f47845e27d916d5ec5346ae9696e01a8a34760858fe9dd2"},
 ]
 packaging = [
-    {file = "packaging-22.0-py3-none-any.whl", hash = "sha256:957e2148ba0e1a3b282772e791ef1d8083648bc131c8ab0c1feba110ce1146c3"},
-    {file = "packaging-22.0.tar.gz", hash = "sha256:2198ec20bd4c017b8f9717e00f0c8714076fc2fd93816750ab48e2c41de2cfd3"},
+    {file = "packaging-23.0-py3-none-any.whl", hash = "sha256:714ac14496c3e68c99c29b00845f7a2b85f3bb6f1078fd9f72fd20f0570002b2"},
+    {file = "packaging-23.0.tar.gz", hash = "sha256:b6ad297f8907de0fa2fe1ccbd26fdaf387f5f47c7275fedf8cce89f99446cf97"},
 ]
 pandas = [
     {file = "pandas-1.5.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:e9dbacd22555c2d47f262ef96bb4e30880e5956169741400af8b306bbb24a273"},
