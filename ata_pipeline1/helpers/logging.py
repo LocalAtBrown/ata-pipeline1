@@ -1,3 +1,4 @@
+import logging
 import logging.config
 
 # To use this logging config in another module:

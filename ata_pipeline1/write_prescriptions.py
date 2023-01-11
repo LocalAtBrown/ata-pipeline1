@@ -20,11 +20,8 @@ def write_prescriptions(df: pd.DataFrame, session_factory: sessionmaker) -> int:
     if data:
 
         # Create statement to bulk-insert prescription rows
-        statement = (
-            insert(Prescription)
-            .values(data)
-            .on_conflict_do_update(index_elements=[Prescription.site_name, Prescription.user_id])
-        )
+        statement = insert(Prescription).values(data)
+        # .on_conflict_do_update(index_elements=[Prescription.site_name, Prescription.user_id])
 
         # Wrap execution within a begin-commit-rollback block
         # (see: https://docs.sqlalchemy.org/en/14/orm/session_basics.html#framing-out-a-begin-commit-rollback-block)
@@ -34,7 +31,7 @@ def write_prescriptions(df: pd.DataFrame, session_factory: sessionmaker) -> int:
             result = session.execute(statement)
 
         # Count number of rows/events inserted
-        num_rows_inserted = result.rowcount
+        num_rows_inserted: int = result.rowcount
 
         # Log message
         logger.info(f"Inserted or updated {num_rows_inserted} rows into the {Prescription.__name__} table.")

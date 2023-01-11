@@ -56,3 +56,7 @@ exclude = [
 # Remove any of these packages from below list once its type stubs are available
 module = ["ata_db_models.helpers", "ata_db_models.models"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "ata_pipeline1.helpers.logging"
+implicit_reexport = true
