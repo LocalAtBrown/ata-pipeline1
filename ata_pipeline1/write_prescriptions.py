@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def write_prescriptions(df: pd.DataFrame, session_factory: sessionmaker) -> int:
     """
-    Writes preprocessed events to database.
+    Writes prescriptions to database.
     This function accepts a `sessionmaker`, which is a factory for session
     objects, given an engine. A `sessionmaker` can be created like so:
     >>> session_factory = sessionmaker(engine)
