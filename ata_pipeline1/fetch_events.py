@@ -6,7 +6,8 @@ from ata_db_models.models import Event
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import select
 
-from ata_pipeline1.helpers.enums import EventName, SiteName
+from ata_pipeline1.helpers.events import EventName
+from ata_pipeline1.site.names import SiteName
 
 
 def fetch_events(
