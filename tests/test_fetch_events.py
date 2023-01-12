@@ -1,15 +1,14 @@
-from collections.abc import Generator
-from contextlib import contextmanager
 from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
-from ata_db_models.models import Event, SQLModel
+from ata_db_models.models import Event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
 from ata_pipeline1.fetch_events import fetch_events
 from ata_pipeline1.helpers.enums import EventName, SiteName
+from tests.helpers import create_and_drop_tables
 
 
 @pytest.fixture
@@ -37,18 +36,6 @@ def single_event(current_timestamp: datetime) -> Event:
         unstruct_event_com_snowplowanalytics_snowplow_submit_form_1=None,
         useragent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
     )
-
-
-@contextmanager
-def create_and_drop_tables(engine: Engine) -> Generator[None, None, None]:
-    """
-    Context manager to safely create and drop tables before and after each test.
-    """
-    SQLModel.metadata.create_all(engine)
-    try:
-        yield
-    finally:
-        SQLModel.metadata.drop_all(engine)
 
 
 def test_fetch_events(
