@@ -254,6 +254,31 @@ class AddFieldEventParentId(Preprocessor):
 
 
 @dataclass
+class AddFieldsPageType(Preprocessor):
+    """
+    For a given site, determines whether or not a page associated with an event is:
+    -  Home page
+    -  About us/our team
+    -  Newsletter form page
+    -  Donation/membership
+    -  Story/article
+    -  Section/tag page
+    -  Author profile & stories list
+
+    Note that some of these categories are not mutually exclusive, e.g., a page
+    can be both an "About us" page and a newsletter-form page. As a result, this
+    preprocessor creates a new boolean field corresponding to each category (much
+    in the style of one-hot encoding).
+    """
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        pass
+
+    def log_result(self, df_in, df_out) -> None:
+        pass
+
+
+@dataclass
 class AggregatePageActivities(Preprocessor):
     """
     Combine events of the same parent and creates (or replaces existing fields with)
