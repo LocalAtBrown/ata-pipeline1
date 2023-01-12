@@ -1,6 +1,7 @@
 import ast
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from typing import Any, Callable, Dict, Set, Tuple, Union
 
 import numpy as np
@@ -52,8 +53,8 @@ class AddFieldFormSubmitIsNewsletter(Preprocessor):
     """
 
     site_newsletter_signup_validator: SiteNewsletterSignupValidator
-    field_event_name: FieldSnowplow
-    field_form_submit_is_newsletter: FieldNew
+    field_event_name: FieldSnowplow = FieldSnowplow.EVENT_NAME
+    field_form_submit_is_newsletter: FieldNew = FieldNew.FORM_SUBMIT_IS_NEWSLETTER
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         # Make a copy of the original so that it's not affected, but can remove
@@ -83,8 +84,8 @@ class AddFieldDeviceIsMobile(Preprocessor):
     Adds a new column indicating whether device where event was recorded is mobile.
     """
 
-    field_useragent: FieldSnowplow
-    field_device_is_mobile: FieldNew
+    field_useragent: FieldSnowplow = FieldSnowplow.USERAGENT
+    field_device_is_mobile: FieldNew = FieldNew.DVCE_IS_MOBILE
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
@@ -103,9 +104,9 @@ class AddFieldMaxScrollDepth(Preprocessor):
     Adds a new column showing maximum scroll-depth percentage.
     """
 
-    field_offset_y: FieldSnowplow
-    field_doc_height: FieldSnowplow
-    field_max_scroll_depth: FieldNew
+    field_offset_y: FieldSnowplow = FieldSnowplow.PP_YOFFSET_MAX
+    field_doc_height: FieldSnowplow = FieldSnowplow.DOC_HEIGHT
+    field_max_scroll_depth: FieldNew = FieldNew.SCROLL_DEPTH_MAX
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
@@ -124,7 +125,7 @@ class SortFieldTimestamp(Preprocessor):
     Sorts events by ascending timestamp.
     """
 
-    field_timestamp: FieldSnowplow
+    field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.sort_values(self.field_timestamp)
@@ -165,14 +166,14 @@ class AddFieldEventParentId(Preprocessor):
 
     """
 
-    field_timestamp: FieldSnowplow
-    field_user_id: FieldSnowplow
-    field_user_session_idx: FieldSnowplow
-    field_page_urlpath: FieldSnowplow
-    field_event_id: FieldSnowplow
-    field_event_name: FieldSnowplow
-    field_site_name: FieldNew
-    field_event_parent_id: FieldNew
+    field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
+    field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
+    field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
+    field_page_urlpath: FieldSnowplow = FieldSnowplow.PAGE_URLPATH
+    field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
+    field_event_name: FieldSnowplow = FieldSnowplow.EVENT_NAME
+    field_site_name: FieldNew = FieldNew.SITE_NAME
+    field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
     PING_INTERVAL_SECONDS = 10
     PING_INTERVAL_NOISE_SECONDS = 1
 
@@ -259,8 +260,8 @@ class AggregatePageActivities(Preprocessor):
     new fields with aggregation/summary statistics (e.g., max scroll depth, dwell time).
     """
 
-    field_event_parent_id: FieldNew
     agg_funcs: Dict[Field, Tuple[FieldPreAgg, Union[Callable, str]]]
+    field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
 
     # TODO: When aggregating, create a new column showing index of visit within session
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -367,11 +368,30 @@ class ConvertFieldTypes(Preprocessor):
     Changes data types in a Snowplow events DataFrame to those desired.
     """
 
-    fields_int: Set[FieldSnowplow]
-    fields_float: Set[FieldSnowplow]
-    fields_datetime: Set[FieldSnowplow]
-    fields_categorical: Set[FieldSnowplow]
-    fields_json: Set[FieldSnowplow]
+    fields_int: Set[FieldSnowplow] = dataclass_field(default_factory=lambda: {FieldSnowplow.DOMAIN_SESSIONIDX})
+    fields_float: Set[FieldSnowplow] = dataclass_field(
+        default_factory=lambda: {
+            FieldSnowplow.DOC_HEIGHT,
+            FieldSnowplow.DVCE_SCREENHEIGHT,
+            FieldSnowplow.DVCE_SCREENWIDTH,
+            FieldSnowplow.PP_YOFFSET_MAX,
+        }
+    )
+    fields_datetime: Set[FieldSnowplow] = dataclass_field(default_factory=lambda: {FieldSnowplow.DERIVED_TSTAMP})
+    fields_categorical: Set[FieldSnowplow] = dataclass_field(
+        default_factory=lambda: {
+            FieldSnowplow.EVENT_NAME,
+            FieldSnowplow.REFR_MEDIUM,
+            FieldSnowplow.REFR_SOURCE,
+        }
+    )
+    fields_json: Set[FieldSnowplow] = dataclass_field(
+        default_factory=lambda: {
+            FieldSnowplow.SEMISTRUCT_FORM_CHANGE,
+            FieldSnowplow.SEMISTRUCT_FORM_FOCUS,
+            FieldSnowplow.SEMISTRUCT_FORM_SUBMIT,
+        }
+    )
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         # Make a copy of the original so that it's not affected, but can remove
