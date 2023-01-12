@@ -10,7 +10,7 @@ from sqlmodel import select
 
 from ata_pipeline1.helpers.enums import SiteName
 from ata_pipeline1.write_prescriptions import write_prescriptions
-from tests._helpers import create_and_drop_tables
+from tests.helpers import create_and_drop_tables
 
 
 @pytest.fixture
@@ -34,10 +34,8 @@ def test_write_prescriptions(prescriptions_as_df: pd.DataFrame, engine: Engine, 
             statement = select(Prescription)
             results = session.execute(statement)
             data = [prescription[0].dict() for prescription in results]
-    print(prescriptions_as_df)
     # order the columns the same way as prescriptions_as_df
     from_db = pd.DataFrame(data=data)[["user_id", "site_name", "prescribe", "last_updated"]]
-    print(from_db)
     assert prescriptions_as_df.equals(from_db)
 
 

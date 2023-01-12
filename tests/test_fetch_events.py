@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 
 from ata_pipeline1.fetch_events import fetch_events
 from ata_pipeline1.helpers.enums import EventName, SiteName
-from tests._helpers import create_and_drop_tables
+from tests.helpers import create_and_drop_tables
 
 
 @pytest.fixture
