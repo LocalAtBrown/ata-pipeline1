@@ -2,7 +2,7 @@ import logging
 import logging.config
 
 # To use this logging config in another module:
-# >>> from ata_pipeline0.helpers.logging import logging
+# >>> from ata_pipeline1.helpers.logging import logging
 # >>> logger = logging.getLogger(__name__)
 # >>> logger.info("Hello, I'm a log")
 # This adheres to the one-logger-per-module best practice
