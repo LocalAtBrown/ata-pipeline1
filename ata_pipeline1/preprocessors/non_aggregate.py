@@ -1,48 +1,20 @@
 import ast
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import Any, Callable, Dict, Set, Tuple, Union
+from typing import Any, Dict, Set, Union
 
 import numpy as np
 import pandas as pd
 import user_agents as ua
 
 from ata_pipeline1.helpers.events import EventName
-from ata_pipeline1.helpers.fields import Field, FieldNew, FieldPreAgg, FieldSnowplow
+from ata_pipeline1.helpers.fields import FieldNew, FieldSnowplow
 from ata_pipeline1.helpers.logging import logging
+from ata_pipeline1.preprocessors.base import Preprocessor
 from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.site.newsletter import SiteNewsletterSignupValidator
 
 logger = logging.getLogger(__name__)
-
-
-class Preprocessor(ABC):
-    """
-    Base preprocessor abstract class. Its children should be dataclasses storing
-    variables needed for the specific transformation.
-    """
-
-    def __call__(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Calls an instance of a child class as if it's a (preprocessing) function.
-        """
-        df_out = self.transform(df)
-        self.log_result(df, df_out)
-        return df_out
-
-    @abstractmethod
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Transforms a Snowplow DataFrame using parameters predefined in the dataclass.
-        """
-        pass
-
-    @abstractmethod
-    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
-        """
-        Logs useful post-transformation messages.
-        """
 
 
 # ---------- NEW PREPROCESSORS ----------
@@ -273,30 +245,6 @@ class AddFieldsPageType(Preprocessor):
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         pass
-
-    def log_result(self, df_in, df_out) -> None:
-        pass
-
-
-@dataclass
-class AggregatePageActivities(Preprocessor):
-    """
-    Combine events of the same parent and creates (or replaces existing fields with)
-    new fields with aggregation/summary statistics (e.g., max scroll depth, dwell time).
-    """
-
-    agg_funcs: Dict[Field, Tuple[FieldPreAgg, Union[Callable, str]]]
-    field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
-
-    # TODO: When aggregating, create a new column showing index of visit within session
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        return df.groupby(self.field_event_parent_id).aggregate(**self._create_named_agg_objects())
-
-    def _create_named_agg_objects(self) -> Dict[Field, pd.NamedAgg]:
-        return {
-            field_agg: pd.NamedAgg(column=field_basis, aggfunc=func)
-            for field_agg, (field_basis, func) in self.agg_funcs.items()
-        }
 
     def log_result(self, df_in, df_out) -> None:
         pass
