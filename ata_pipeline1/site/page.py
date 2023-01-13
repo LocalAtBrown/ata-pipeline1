@@ -3,7 +3,7 @@ from abc import ABC
 import pandas as pd
 
 
-class SitePageTypeClassifier(ABC):
+class SitePageClassifier(ABC):
     """
     Base class for a site's heuristics-based, multilabel, page-type classifier.
     """
@@ -67,3 +67,41 @@ class SitePageTypeClassifier(ABC):
         Checks if page is author profile and eheir list of articles.
         """
         return False
+
+
+class AfroLaPageClassifier(SitePageClassifier):
+    """
+    AfroLA page-type classifier.
+
+    TODO: AfroLA's new site design will debut February 1, 2023 at 00:00:00 UTC.
+    New logic will need to be written to process all events happening after.
+    Some sort of design pattern (and perhaps data structure) that keeps track
+    of different sets of rules and when to apply which would also be good
+    (maybe a metaclass?).
+    """
+
+    pass
+
+
+class DallasFreePressPageClassifier(SitePageClassifier):
+    """
+    Dallas Free Press page-type classifier.
+    """
+
+    pass
+
+
+class OpenVallejoPageClassifier(SitePageClassifier):
+    """
+    Open Vallejo page-type classifier.
+    """
+
+    pass
+
+
+class The19thPageClassifier(SitePageClassifier):
+    """
+    The 19th* page-type classifier.
+    """
+
+    pass
