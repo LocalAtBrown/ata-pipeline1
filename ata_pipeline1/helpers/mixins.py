@@ -11,9 +11,15 @@ class AppliesFromTimestamp(ABC):
     To be added to a class (e.g., newsletter-submission validator by time period)
     whose logic only applies from a particular timestamp moving forward (e.g.,
     after a UI update from a partner's end).
+
+    The class that uses this mixin should be in a list of components used by whichever
+    class that uses the `ChangesBetweenTimestamps` mixin.
     """
 
-    def __init__(self, effective_starting: datetime = datetime(1970, 1, 1, 0, 0, 0)) -> None:
+    def set_effective_starting(self, effective_starting: datetime = datetime(1970, 1, 1, 0, 0, 0)) -> None:
+        """
+        Sets the timestamp with Unix epoch as default.
+        """
         self.effective_starting = effective_starting
 
 
@@ -24,7 +30,10 @@ class ChangesBetweenTimestamps(ABC):
     UI updates).
     """
 
-    def __init__(self, components: List[AppliesFromTimestamp]) -> None:
+    def set_components(self, components: List[AppliesFromTimestamp]) -> None:
+        """
+        Sorts the input component list, then sets it as a class attribute.
+        """
         self.components = sorted(components, key=lambda c: c.effective_starting)
 
     def assign_components(self, timestamps: Iterable[datetime]) -> List[AppliesFromTimestamp]:
