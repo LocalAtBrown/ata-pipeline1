@@ -1,5 +1,5 @@
-from .names import SiteName
-from .sites import AfroLa, DallasFreePress, OpenVallejo, The19th
+from ata_pipeline1.site.names import SiteName
+from ata_pipeline1.site.sites import AfroLa, DallasFreePress, OpenVallejo, The19th
 
 # Site objects
 AFRO_LA = AfroLa()
