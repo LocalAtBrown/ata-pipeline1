@@ -1,10 +1,30 @@
 from enum import Enum
-from typing import Union
-
-from typing_extensions import TypeAlias
 
 
-class FieldSnowplow(str, Enum):
+class _StrEnum(str, Enum):
+    """
+    StrEnum class. Replace with built-in version after upgrading to Python 3.10.
+    """
+
+    def __str__(self) -> str:
+        return self.value
+
+
+# ---------- EVENT ENUMS ----------
+class EventName(_StrEnum):
+    """
+    Enum of snowplow event names that we expect to handle
+    """
+
+    CHANGE_FORM = "change_form"
+    FOCUS_FORM = "focus_form"
+    PAGE_PING = "page_ping"
+    PAGE_VIEW = "page_view"
+    SUBMIT_FORM = "submit_form"
+
+
+# ---------- DATA FIELD ENUMS ----------
+class FieldSnowplow(_StrEnum):
     """
     Enum for Snowplow fields of interest.
     Snowplow documentation of these fields can be found here: https://docs.snowplow.io/docs/understanding-your-pipeline/canonical-event/.
@@ -75,9 +95,9 @@ class FieldSnowplow(str, Enum):
     USERAGENT = "useragent"
 
 
-class FieldNew(str, Enum):
+class FieldNew(_StrEnum):
     """
-    Enum for non-Snowplow fields to be added (pre-aggregation).
+    Enum for non-Snowplow fields to be added.
     """
 
     # [BOOLEAN] Whether device where event was recorded is mobile
@@ -95,15 +115,5 @@ class FieldNew(str, Enum):
     # [STR] Site partner's name (as a slug corresponding to its S3 bucket)
     SITE_NAME = "site_name"
 
-
-class FieldAggregate(str, Enum):
-    """
-    Enum for non-Snowplow fields to be added (during aggregation).
-    """
-
     # [FLOAT] Dwell time in seconds
     DWELL_SECS = "dwell_secs"
-
-
-Field: TypeAlias = Union[FieldSnowplow, FieldNew, FieldAggregate]
-FieldPreAgg: TypeAlias = Union[FieldSnowplow, FieldNew]

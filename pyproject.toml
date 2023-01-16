@@ -24,6 +24,7 @@ pandas-stubs = "^1.5.1"
 sqlalchemy-stubs = "^0.4"
 notebook = "^6.5.2"
 matplotlib = "^3.6.2"
+typing-extensions = "^4.4.0"
 
 
 [build-system]

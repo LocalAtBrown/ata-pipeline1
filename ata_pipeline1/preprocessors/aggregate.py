@@ -3,7 +3,8 @@ from typing import Callable, Dict, Tuple, Union
 
 import pandas as pd
 
-from ata_pipeline1.helpers.fields import Field, FieldNew, FieldPreAgg
+from ata_pipeline1.helpers.enums import FieldNew
+from ata_pipeline1.helpers.typing import Field
 from ata_pipeline1.preprocessors.base import Preprocessor
 
 
@@ -14,7 +15,7 @@ class AggregatePageActivities(Preprocessor):
     new fields with aggregation/summary statistics (e.g., max scroll depth, dwell time).
     """
 
-    agg_funcs: Dict[Field, Tuple[FieldPreAgg, Union[Callable, str]]]
+    agg_funcs: Dict[Field, Tuple[Field, Union[Callable, str]]]
     field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
 
     # TODO: When aggregating, create a new column showing index of visit within session

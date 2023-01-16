@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, overload
+from typing import List
 
 import pandas as pd
 
-from ata_pipeline1.helpers.fields import FieldSnowplow
+from ata_pipeline1.helpers.enums import FieldSnowplow
 from ata_pipeline1.helpers.mixins import AppliesFromTimestamp, ChangesBetweenTimestamps
 
 
@@ -99,7 +99,6 @@ class SitePageClassifier(PageClassifier, ChangesBetweenTimestamps):
     def __init__(self, components: List[SitePageClassifierComponent]) -> None:
         super().__init__(components=components)
 
-    @overload
     def assign_component(self, event: pd.Series) -> SitePageClassifierComponent:
         return super().assign_component(event[FieldSnowplow.DERIVED_TSTAMP])
 

@@ -7,8 +7,7 @@ import numpy as np
 import pandas as pd
 import user_agents as ua
 
-from ata_pipeline1.helpers.events import EventName
-from ata_pipeline1.helpers.fields import FieldNew, FieldSnowplow
+from ata_pipeline1.helpers.enums import EventName, FieldNew, FieldSnowplow
 from ata_pipeline1.helpers.logging import logging
 from ata_pipeline1.preprocessors.base import Preprocessor
 from ata_pipeline1.site.names import SiteName

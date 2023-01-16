@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 
-from ata_pipeline1.helpers.fields import FieldSnowplow
+from ata_pipeline1.helpers.enums import FieldSnowplow
 
 
 # ---------- SITE FORM-SUBMISSION EVENT UTILITIES ----------
