@@ -1,6 +1,5 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Dict
 
 from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.site.newsletter import (
@@ -61,12 +60,3 @@ class The19th(Site):
 
     name: SiteName = SiteName.THE_19TH
     newsletter_signup_validator: SiteNewsletterSignupValidator = The19thNewsletterSignupValidator()
-
-
-# Site objects
-SITES: Dict[SiteName, Site] = {
-    SiteName.AFRO_LA: AfroLa(),
-    SiteName.DALLAS_FREE_PRESS: DallasFreePress(),
-    SiteName.OPEN_VALLEJO: OpenVallejo(),
-    SiteName.THE_19TH: The19th(),
-}
