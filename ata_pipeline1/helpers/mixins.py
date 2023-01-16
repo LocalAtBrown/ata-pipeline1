@@ -1,5 +1,4 @@
 from abc import ABC
-from collections.abc import Iterable
 from datetime import datetime
 from typing import List
 
@@ -8,7 +7,7 @@ import numpy as np
 
 class AppliesFromTimestamp(ABC):
     """
-    To be added to a class (e.g., newsletter-submission validator by time period)
+    Mixin to be added to a class (e.g., newsletter-submission validator by time period)
     whose logic only applies from a particular timestamp moving forward (e.g.,
     after a UI update from a partner's end).
 
@@ -16,39 +15,51 @@ class AppliesFromTimestamp(ABC):
     class that uses the `ChangesBetweenTimestamps` mixin.
     """
 
-    def set_effective_starting(self, effective_starting: datetime = datetime(1970, 1, 1, 0, 0, 0)) -> None:
+    def __init__(self, *args, effective_starting: datetime, **kwargs) -> None:
+        # Formality to make sure the next class after this one in the MRO of
+        # whichever class that subclasses this one has its __init__ method called
+        # (see: https://www.youtube.com/watch?v=X1PQ7zzltz4, 10:00 mark)
+        super().__init__(*args, **kwargs)
+
+        self._set_effective_starting(effective_starting)
+
+    def _set_effective_starting(self, effective_starting: datetime) -> None:
         """
-        Sets the timestamp with Unix epoch as default.
+        Sets the timestamp.
         """
         self.effective_starting = effective_starting
 
 
 class ChangesBetweenTimestamps(ABC):
     """
-    To be added to a class (e.g., site newsletter-submission validator) whose
+    Mixin to be added to a class (e.g., site newsletter-submission validator) whose
     logic changes from time period to time period (e.g., across different
     UI updates).
     """
 
-    def set_components(self, components: List[AppliesFromTimestamp]) -> None:
+    def __init__(self, *args, components: List[AppliesFromTimestamp], **kwargs) -> None:
+        # Formality to make sure the next class after this one in the MRO of
+        # whichever class that subclasses this one has its __init__ method called
+        # (see: https://www.youtube.com/watch?v=X1PQ7zzltz4, 10:00 mark)
+        super().__init__(*args, **kwargs)
+
+        self._set_components(components)
+
+    def _set_components(self, components: List[AppliesFromTimestamp]) -> None:
         """
         Sorts the input component list, then sets it as a class attribute.
         """
         self.components = sorted(components, key=lambda c: c.effective_starting)
+        # Store POSIX floats of components' effective_starting timestamps
+        self.component_timestamps_float = [c.effective_starting.timestamp() for c in self.components]
 
-    def assign_components(self, timestamps: Iterable[datetime]) -> List[AppliesFromTimestamp]:
+    def assign_component(self, timestamp: datetime) -> AppliesFromTimestamp:
         """
-        Given a list of datetime timestamps, returns a corresponding list of components
-        where each component's `effective_starting` timestamp is right before the
-        timestamp of the same index in the original list.
+        Given a timestamp of class `datetime` (or any class that subclasses it, such
+        as `pd.Timestamp`), returns the component whose `effective_starting` timestamp
+        is right before it.
 
-        This is essentially assigning timestamps into bins.
+        This is essentially assigning said timestamp into an appropriate bin.
         """
-        # Convert datetimes into POSIX floats to take advantage of NumPy
-        values = [t.timestamp() for t in timestamps]
-        bins = [c.effective_starting.timestamp() for c in self.components]
-
-        # Get component indices (= bin indices - 1)
-        indices = np.digitize(values, bins)
-
-        return [self.components[i] for i in indices]
+        # Get component index (= bin index - 1)
+        return np.searchsorted(self.component_timestamps_float, timestamp.timestamp()) - 1
