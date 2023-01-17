@@ -15,15 +15,7 @@ class AppliesFromTimestamp(ABC):
     class that uses the `ChangesBetweenTimestamps` mixin.
     """
 
-    def __init__(self, *args, effective_starting: datetime, **kwargs) -> None:
-        # Formality to make sure the next class after this one in the MRO of
-        # whichever class that subclasses this one has its __init__ method called
-        # (see: https://www.youtube.com/watch?v=X1PQ7zzltz4, 10:00 mark)
-        super().__init__(*args, **kwargs)
-
-        self._set_effective_starting(effective_starting)
-
-    def _set_effective_starting(self, effective_starting: datetime) -> None:
+    def set_effective_starting(self, effective_starting: datetime) -> None:
         """
         Sets the timestamp.
         """
@@ -37,15 +29,7 @@ class ChangesBetweenTimestamps(ABC):
     UI updates).
     """
 
-    def __init__(self, *args, components: List[AppliesFromTimestamp], **kwargs) -> None:
-        # Formality to make sure the next class after this one in the MRO of
-        # whichever class that subclasses this one has its __init__ method called
-        # (see: https://www.youtube.com/watch?v=X1PQ7zzltz4, 10:00 mark)
-        super().__init__(*args, **kwargs)
-
-        self._set_components(components)
-
-    def _set_components(self, components: List[AppliesFromTimestamp]) -> None:
+    def set_components(self, components: List[AppliesFromTimestamp]) -> None:
         """
         Sorts the input component list, then sets it as a class attribute.
         """

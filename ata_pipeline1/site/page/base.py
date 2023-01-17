@@ -26,12 +26,6 @@ class PageClassifier(ABC):
     Base class for a site's rule-based, multilabel, page-type classifier.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
-        # Formality to make sure the next class after this one in the MRO of
-        # whichever class that subclasses this one has its __init__ method called
-        # (see: https://www.youtube.com/watch?v=X1PQ7zzltz4, 10:00 mark)
-        super().__init__(*args, **kwargs)
-
     @abstractmethod
     def is_home(self, event: pd.Series) -> bool:
         """
@@ -118,7 +112,7 @@ class SitePageClassifierComponent(PageClassifier, AppliesFromTimestamp):
     ) -> None:
         # Using SPACE as default pattern because it always returns False during matching
         # since SPACE isn't allowed in URLs.
-        super().__init__(effective_starting=effective_starting)
+        self.set_effective_starting(effective_starting)
 
         if use_default_patterns_schema:
             self.patterns = Patterns(
@@ -160,7 +154,7 @@ class SitePageClassifier(PageClassifier, ChangesBetweenTimestamps):
     """
 
     def __init__(self, components: List[SitePageClassifierComponent]) -> None:
-        super().__init__(components=components)
+        self.set_components(components)
 
     def assign_component(self, event: pd.Series) -> SitePageClassifierComponent:
         return super().assign_component(event[FieldSnowplow.DERIVED_TSTAMP])
