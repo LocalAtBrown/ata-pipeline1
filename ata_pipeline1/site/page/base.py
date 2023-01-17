@@ -7,7 +7,10 @@ from typing import List
 import pandas as pd
 
 from ata_pipeline1.helpers.enums import FieldSnowplow
-from ata_pipeline1.helpers.mixins import AppliesFromTimestamp, ChangesBetweenTimestamps
+from ata_pipeline1.helpers.mixins import (
+    AppliesDuringTimePeriod,
+    ChangesBetweenTimePeriods,
+)
 
 
 @dataclass
@@ -87,7 +90,7 @@ class PageClassifier(ABC):
         pass
 
 
-class SitePageClassifierComponent(PageClassifier, AppliesFromTimestamp):
+class SitePageClassifierComponent(PageClassifier, AppliesDuringTimePeriod):
     """
     Base class of a classifier component whose rules only applies from
     some particular point in time.
@@ -147,7 +150,7 @@ class SitePageClassifierComponent(PageClassifier, AppliesFromTimestamp):
         return bool(self.patterns.author_profile.search(event[FieldSnowplow.PAGE_URLPATH]))
 
 
-class SitePageClassifier(PageClassifier, ChangesBetweenTimestamps):
+class SitePageClassifier(PageClassifier, ChangesBetweenTimePeriods):
     """
     Base class of a classifier that consists of one or more classifier
     components.
