@@ -1,4 +1,6 @@
+import re
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime
 from typing import List
 
@@ -6,6 +8,17 @@ import pandas as pd
 
 from ata_pipeline1.helpers.enums import FieldSnowplow
 from ata_pipeline1.helpers.mixins import AppliesFromTimestamp, ChangesBetweenTimestamps
+
+
+@dataclass
+class Patterns:
+    home: re.Pattern[str]
+    about_us: re.Pattern[str]
+    newsletter: re.Pattern[str]
+    donation: re.Pattern[str]
+    article: re.Pattern[str]
+    section: re.Pattern[str]
+    author_profile: re.Pattern[str]
 
 
 class PageClassifier(ABC):
@@ -84,10 +97,60 @@ class SitePageClassifierComponent(PageClassifier, AppliesFromTimestamp):
     """
     Base class of a classifier component whose rules only applies from
     some particular point in time.
+
+    This default component only performs a regex match of an event's `page_urlpath`
+    to determine the page type (regex patterns are supplied by the programmer).
+    If you need to perform more complex operations to determine page type,
+    create a new class that subclasses this class and override methods as needed.
     """
 
-    def __init__(self, effective_starting: datetime = datetime(1970, 1, 1)) -> None:
+    def __init__(
+        self,
+        effective_starting: datetime = datetime(1970, 1, 1),
+        use_default_patterns_schema: bool = True,
+        home: str = " ",
+        about_us: str = " ",
+        newsletter: str = " ",
+        donation: str = " ",
+        article: str = " ",
+        section: str = " ",
+        author_profile: str = " ",
+    ) -> None:
+        # Using SPACE as default pattern because it always returns False during matching
+        # since SPACE isn't allowed in URLs.
         super().__init__(effective_starting=effective_starting)
+
+        if use_default_patterns_schema:
+            self.patterns = Patterns(
+                home=re.Pattern(home),
+                about_us=re.Pattern(about_us),
+                newsletter=re.Pattern(newsletter),
+                donation=re.Pattern(donation),
+                article=re.Pattern(article),
+                section=re.Pattern(section),
+                author_profile=re.Pattern(author_profile),
+            )
+
+    def is_home(self, event: pd.Series) -> bool:
+        return bool(self.patterns.home.search(event[FieldSnowplow.PAGE_URLPATH]))
+
+    def is_about_us(self, event: pd.Series) -> bool:
+        return bool(self.patterns.about_us.search(event[FieldSnowplow.PAGE_URLPATH]))
+
+    def is_newsletter(self, event: pd.Series) -> bool:
+        return bool(self.patterns.newsletter.search(event[FieldSnowplow.PAGE_URLPATH]))
+
+    def is_donation(self, event: pd.Series) -> bool:
+        return bool(self.patterns.donation.search(event[FieldSnowplow.PAGE_URLPATH]))
+
+    def is_article(self, event: pd.Series) -> bool:
+        return bool(self.patterns.article.search(event[FieldSnowplow.PAGE_URLPATH]))
+
+    def is_section(self, event: pd.Series) -> bool:
+        return bool(self.patterns.section.search(event[FieldSnowplow.PAGE_URLPATH]))
+
+    def is_author_profile(self, event: pd.Series) -> bool:
+        return bool(self.patterns.author_profile.search(event[FieldSnowplow.PAGE_URLPATH]))
 
 
 class SitePageClassifier(PageClassifier, ChangesBetweenTimestamps):
