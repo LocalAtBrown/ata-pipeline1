@@ -106,7 +106,7 @@ class SitePageClassifierComponent(PageClassifier, AppliesFromTimestamp):
 
     def __init__(
         self,
-        effective_starting: datetime = datetime(1970, 1, 1),
+        effective_starting: datetime,
         use_default_patterns_schema: bool = True,
         home: str = " ",
         about_us: str = " ",
@@ -122,13 +122,13 @@ class SitePageClassifierComponent(PageClassifier, AppliesFromTimestamp):
 
         if use_default_patterns_schema:
             self.patterns = Patterns(
-                home=re.Pattern(home),
-                about_us=re.Pattern(about_us),
-                newsletter=re.Pattern(newsletter),
-                donation=re.Pattern(donation),
-                article=re.Pattern(article),
-                section=re.Pattern(section),
-                author_profile=re.Pattern(author_profile),
+                home=re.compile(home),
+                about_us=re.compile(about_us),
+                newsletter=re.compile(newsletter),
+                donation=re.compile(donation),
+                article=re.compile(article),
+                section=re.compile(section),
+                author_profile=re.compile(author_profile),
             )
 
     def is_home(self, event: pd.Series) -> bool:
