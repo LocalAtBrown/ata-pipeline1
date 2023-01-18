@@ -2,12 +2,21 @@ from datetime import datetime
 
 import pandas as pd
 
-from ata_pipeline1.site.page.base import SitePageClassifier, SitePageClassifierComponent
+from ata_pipeline1.site.page.base import (
+    URLPATH_ANTIPATTERN,
+    SitePageClassifier,
+    SitePageClassifierComponent,
+)
 
 
 class DfpBilingualComponent(SitePageClassifierComponent):
     """
     Custom rule set for DFP given that it has pages in both English and Spanish.
+
+    TODO: For tests, refer to the sitemap (https://dallasfreepress.com/sitemap_index.xml)
+    for test examples of URL paths. In an ideal world, we'd like to build a system that
+    monitors this sitemap and changes regex rules accordingly, but hard-coded rules will
+    have to work for now.
     """
 
     def __init__(
@@ -80,18 +89,18 @@ CLASSIFIER_DALLAS_FREE_PRESS = SitePageClassifier(
         DfpBilingualComponent(
             effective_starting=datetime(1970, 1, 1),
             eng_home=r"^/$",
-            eng_about_us=r"^/(about|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
-            eng_newsletter=r"^/text\-and\-email\-notifications/?$",
+            eng_about_us=r"^/(about\-us|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
+            eng_newsletter=r"^/(text\-and\-email\-notifications)|(how\-do\-you\-like\-your\-news)/?$",
             eng_donation=r"^/support\-dfp/?$",
             eng_article=r"",  # TODO
-            eng_section=r"^/(dallas\-forgot|dallas\-news)/?$",  # TODO
+            eng_section=r"^/(dallas\-forgot|dallas\-news|food\-apartheid|south\-dallas|uncategorized|west\-dallas|tag/[a-zA-Z\d\-]+)/?$",
             eng_author_profile=r"^/author/[a-zA-Z\-]+/?$",
             spa_home=r"^/es/?$",
-            spa_about_us=r"^/?$",  # TODO
-            spa_newsletter=r"^/?$",  # TODO
+            spa_about_us=r"^/es/(sobre\-nosotros|exponiendo\-nuestra\-parcialidad)/?$",
+            spa_newsletter=URLPATH_ANTIPATTERN,  # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/ doesn't have a newsletter form
             spa_donation=r"^/es/apoyanos/?$",
             spa_article=r"^/?$",  # TODO
-            spa_section=r"^/?$",  # TODO
+            spa_section=r"^/es/(dallas\-forgot|noticias\-de\-dallas|food\-apartheid\-es|south\-dallas|sin\-categorizar|west\-dallas|tag/[a-zA-Z\d\-]+)/?$",
             spa_author_profile=r"^/es/author/[a-zA-Z\-]+/?$",
         ),
     ]

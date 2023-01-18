@@ -12,6 +12,10 @@ from ata_pipeline1.helpers.mixins import (
     ChangesBetweenTimePeriods,
 )
 
+# Using SPACE as default antipattern because it always returns False during matching
+# since SPACE isn't allowed in URLs.
+URLPATH_ANTIPATTERN = r"\s"
+
 
 @dataclass
 class Patterns:
@@ -78,14 +82,14 @@ class PageClassifier(ABC):
     @abstractmethod
     def is_section(self, event: pd.Series) -> bool:
         """
-        Checks if page is a section or topic page.
+        Checks if page is a section, topic, or tag page.
         """
         pass
 
     @abstractmethod
     def is_author_profile(self, event: pd.Series) -> bool:
         """
-        Checks if page is author profile and eheir list of articles.
+        Checks if page is author profile and their list of articles.
         """
         pass
 
@@ -105,16 +109,14 @@ class SitePageClassifierComponent(PageClassifier, AppliesDuringTimePeriod):
         self,
         effective_starting: datetime,
         use_default_patterns_schema: bool = True,
-        home: str = " ",
-        about_us: str = " ",
-        newsletter: str = " ",
-        donation: str = " ",
-        article: str = " ",
-        section: str = " ",
-        author_profile: str = " ",
+        home: str = URLPATH_ANTIPATTERN,
+        about_us: str = URLPATH_ANTIPATTERN,
+        newsletter: str = URLPATH_ANTIPATTERN,
+        donation: str = URLPATH_ANTIPATTERN,
+        article: str = URLPATH_ANTIPATTERN,
+        section: str = URLPATH_ANTIPATTERN,
+        author_profile: str = URLPATH_ANTIPATTERN,
     ) -> None:
-        # Using SPACE as default pattern because it always returns False during matching
-        # since SPACE isn't allowed in URLs.
         self.set_effective_starting(effective_starting)
 
         if use_default_patterns_schema:
