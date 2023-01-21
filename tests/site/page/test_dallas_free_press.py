@@ -16,10 +16,10 @@ class TestComponentZero:
         return COMPONENT_ZERO.component_spa.patterns
 
     def test_eng_home(self, patterns_eng) -> None:
-        _test_pattern(patterns_eng.home, ["/"])
+        _test_pattern(patterns_eng.home, ["/", "/page/2"])
 
     def test_spa_home(self, patterns_spa) -> None:
-        _test_pattern(patterns_spa.home, append_slash(["/es"]))
+        _test_pattern(patterns_spa.home, append_slash(["/es", "/es/page/2"]))
 
     def test_eng_about_us(self, patterns_eng) -> None:
         _test_pattern(
