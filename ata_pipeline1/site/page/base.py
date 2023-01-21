@@ -12,9 +12,9 @@ from ata_pipeline1.helpers.mixins import (
     ChangesBetweenTimePeriods,
 )
 
-# Using SPACE as default antipattern because it always returns False during matching
-# since SPACE isn't allowed in URLs.
-URLPATH_ANTIPATTERN = r"\s"
+# URL-path antipattern string that will definitely never match anything inside an
+# actual URL
+URLPATH_ANTIPATTERN = r"\s<>%{}`"
 
 
 @dataclass(frozen=True)
