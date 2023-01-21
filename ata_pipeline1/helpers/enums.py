@@ -117,3 +117,14 @@ class FieldNew(_StrEnum):
 
     # [FLOAT] Dwell time in seconds
     DWELL_SECS = "dwell_secs"
+
+
+# ---------- PAGE TYPES ----------
+class PageType(_StrEnum):
+    HOME = "home"
+    ABOUT_US = "about_us"
+    NEWSLETTER = "newsletter"
+    DONATION = "donation"
+    ARTICLE = "article"
+    SECTION = "section"
+    AUTHOR_PROFILE = "author_profile"

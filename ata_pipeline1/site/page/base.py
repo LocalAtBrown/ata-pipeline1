@@ -2,15 +2,15 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List
+from typing import Callable, List, cast
 
 import pandas as pd
 
-from ata_pipeline1.helpers.enums import FieldSnowplow
-from ata_pipeline1.helpers.mixins import (
+from ata_pipeline1.helpers.datetime import (
     AppliesDuringTimePeriod,
     ChangesBetweenTimePeriods,
 )
+from ata_pipeline1.helpers.enums import FieldSnowplow, PageType
 
 # URL-path antipattern string that will definitely never match anything inside an
 # actual URL
@@ -34,22 +34,20 @@ class PageClassifier(ABC):
     """
 
     @abstractmethod
+    def perform_common_operation(self, event: pd.Series, page_type: PageType) -> bool:
+        """
+        Performs some common operation given page type to determine if an event's page
+        is of that type.
+        """
+        pass
+
     def is_home(self, event: pd.Series) -> bool:
         """
         Checks if page is home page.
         """
-        pass
+        return self.perform_common_operation(event, PageType.HOME)
 
-    @abstractmethod
     def is_about_us(self, event: pd.Series) -> bool:
-        """
-        Checks if page is an "About us" page, or an "Our team" page, or something
-        similar.
-        """
-        pass
-
-    @abstractmethod
-    def is_newsletter(self, event: pd.Series) -> bool:
         """
         Checks if page is a newsletter-form page (e.g., https://19thnews.org/newsletters/daily/).
 
@@ -58,9 +56,14 @@ class PageClassifier(ABC):
         that said page exists. Under this criterion, a story or article that has a
         built-in newsletter form shouldn't be considered a newsletter page.
         """
-        pass
+        return self.perform_common_operation(event, PageType.ABOUT_US)
 
-    @abstractmethod
+    def is_newsletter(self, event: pd.Series) -> bool:
+        """
+        Checks if page is an article or story.
+        """
+        return self.perform_common_operation(event, PageType.NEWSLETTER)
+
     def is_donation(self, event: pd.Series) -> bool:
         """
         Checks if page is a donation or membership-signup page (e.g., https://dallasfreepress.com/support-dfp/).
@@ -70,28 +73,25 @@ class PageClassifier(ABC):
         that said page exists. Under this criterion, a story or article that has a
         built-in donation form shouldn't be considered a donation page.
         """
-        pass
+        return self.perform_common_operation(event, PageType.DONATION)
 
-    @abstractmethod
     def is_article(self, event: pd.Series) -> bool:
         """
-        Checks if page is an article or story.
+        Check if page is a story or article.
         """
-        pass
+        return self.perform_common_operation(event, PageType.ARTICLE)
 
-    @abstractmethod
     def is_section(self, event: pd.Series) -> bool:
         """
         Checks if page is a section, topic, or tag page.
         """
-        pass
+        return self.perform_common_operation(event, PageType.SECTION)
 
-    @abstractmethod
     def is_author_profile(self, event: pd.Series) -> bool:
         """
         Checks if page is author profile and their list of articles.
         """
-        pass
+        return self.perform_common_operation(event, PageType.AUTHOR_PROFILE)
 
 
 class SitePageClassifierComponent(PageClassifier, AppliesDuringTimePeriod):
@@ -130,26 +130,9 @@ class SitePageClassifierComponent(PageClassifier, AppliesDuringTimePeriod):
                 author_profile=re.compile(author_profile),
             )
 
-    def is_home(self, event: pd.Series) -> bool:
-        return bool(self.patterns.home.search(event[FieldSnowplow.PAGE_URLPATH]))
-
-    def is_about_us(self, event: pd.Series) -> bool:
-        return bool(self.patterns.about_us.search(event[FieldSnowplow.PAGE_URLPATH]))
-
-    def is_newsletter(self, event: pd.Series) -> bool:
-        return bool(self.patterns.newsletter.search(event[FieldSnowplow.PAGE_URLPATH]))
-
-    def is_donation(self, event: pd.Series) -> bool:
-        return bool(self.patterns.donation.search(event[FieldSnowplow.PAGE_URLPATH]))
-
-    def is_article(self, event: pd.Series) -> bool:
-        return bool(self.patterns.article.search(event[FieldSnowplow.PAGE_URLPATH]))
-
-    def is_section(self, event: pd.Series) -> bool:
-        return bool(self.patterns.section.search(event[FieldSnowplow.PAGE_URLPATH]))
-
-    def is_author_profile(self, event: pd.Series) -> bool:
-        return bool(self.patterns.author_profile.search(event[FieldSnowplow.PAGE_URLPATH]))
+    def perform_common_operation(self, event: pd.Series, page_type: PageType) -> bool:
+        pattern = cast(re.Pattern[str], getattr(self.patterns, page_type))
+        return bool(pattern.search(event[FieldSnowplow.PAGE_URLPATH]))
 
 
 class SitePageClassifier(PageClassifier, ChangesBetweenTimePeriods):
@@ -164,23 +147,7 @@ class SitePageClassifier(PageClassifier, ChangesBetweenTimePeriods):
     def assign_component(self, event: pd.Series) -> SitePageClassifierComponent:
         return super().assign_component(event[FieldSnowplow.DERIVED_TSTAMP])
 
-    def is_home(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_home(event)
-
-    def is_about_us(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_about_us(event)
-
-    def is_newsletter(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_newsletter(event)
-
-    def is_donation(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_donation(event)
-
-    def is_article(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_article(event)
-
-    def is_section(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_section(event)
-
-    def is_author_profile(self, event: pd.Series) -> bool:
-        return self.assign_component(event).is_author_profile(event)
+    def perform_common_operation(self, event: pd.Series, page_type: PageType) -> bool:
+        component = self.assign_component(event)
+        page_type_checker = cast(Callable[[pd.Series], bool], getattr(component, f"is_{page_type}"))
+        return page_type_checker(event)

@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import Callable
 
 import pandas as pd
 
 from ata_pipeline1.helpers.datetime import TIMESTAMP_POSIX
+from ata_pipeline1.helpers.enums import PageType
 from ata_pipeline1.site.page.base import (
     URLPATH_ANTIPATTERN,
     SitePageClassifier,
@@ -65,26 +67,10 @@ class DfpBilingualComponent(SitePageClassifierComponent):
             author_profile=spa_author_profile,
         )
 
-    def is_home(self, event: pd.Series) -> bool:
-        return self.component_eng.is_home(event) or self.component_spa.is_home(event)
-
-    def is_about_us(self, event: pd.Series) -> bool:
-        return self.component_eng.is_about_us(event) or self.component_spa.is_about_us(event)
-
-    def is_newsletter(self, event: pd.Series) -> bool:
-        return self.component_eng.is_newsletter(event) or self.component_spa.is_newsletter(event)
-
-    def is_donation(self, event: pd.Series) -> bool:
-        return self.component_eng.is_donation(event) or self.component_spa.is_donation(event)
-
-    def is_article(self, event: pd.Series) -> bool:
-        return self.component_eng.is_article(event) or self.component_spa.is_article(event)
-
-    def is_section(self, event: pd.Series) -> bool:
-        return self.component_eng.is_section(event) or self.component_spa.is_section(event)
-
-    def is_author_profile(self, event: pd.Series) -> bool:
-        return self.component_eng.is_author_profile(event) or self.component_spa.is_author_profile(event)
+    def perform_common_operation(self, event: pd.Series, page_type: PageType) -> bool:
+        page_type_checker_eng: Callable[[pd.Series], bool] = getattr(self.component_eng, f"is_{page_type}")
+        page_type_checker_spa: Callable[[pd.Series], bool] = getattr(self.component_spa, f"is_{page_type}")
+        return page_type_checker_eng(event) or page_type_checker_spa(event)
 
 
 # Original DFP component
