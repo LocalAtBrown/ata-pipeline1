@@ -109,8 +109,4 @@ COMPONENT_ZERO = DfpBilingualComponent(
 # When DFP rules change, add a new component here (create a new child class of SitePageClassifierComponent
 # as necessary) and add it to the list of components in CLASSIFIER
 
-CLASSIFIER = SitePageClassifier(
-    components=[
-        COMPONENT_ZERO,
-    ]
-)
+CLASSIFIER = SitePageClassifier([COMPONENT_ZERO])
