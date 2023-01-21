@@ -43,6 +43,7 @@ class DfpBilingualComponent(SitePageClassifierComponent):
         # serves both audiences
         # English
         self.component_eng = SitePageClassifierComponent(
+            effective_starting=effective_starting,
             home=eng_home,
             about_us=eng_about_us,
             newsletter=eng_newsletter,
@@ -53,6 +54,7 @@ class DfpBilingualComponent(SitePageClassifierComponent):
         )
         # Spanish
         self.component_spa = SitePageClassifierComponent(
+            effective_starting=effective_starting,
             home=spa_home,
             about_us=spa_about_us,
             newsletter=spa_newsletter,
@@ -84,24 +86,23 @@ class DfpBilingualComponent(SitePageClassifierComponent):
         return self.component_eng.is_author_profile(event) or self.component_spa.is_author_profile(event)
 
 
-CLASSIFIER_DALLAS_FREE_PRESS = SitePageClassifier(
-    components=[
-        DfpBilingualComponent(
-            effective_starting=datetime(1970, 1, 1),
-            eng_home=r"^/$",
-            eng_about_us=r"^/(about\-us|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
-            eng_newsletter=r"^/(text\-and\-email\-notifications)|(how\-do\-you\-like\-your\-news)/?$",
-            eng_donation=r"^/support\-dfp/?$",
-            eng_article=r"",  # TODO
-            eng_section=r"^/(dallas\-forgot|dallas\-news|food\-apartheid|south\-dallas|uncategorized|west\-dallas|tag/[a-zA-Z\d\-]+)/?$",
-            eng_author_profile=r"^/author/[a-zA-Z\-]+/?$",
-            spa_home=r"^/es/?$",
-            spa_about_us=r"^/es/(sobre\-nosotros|exponiendo\-nuestra\-parcialidad)/?$",
-            spa_newsletter=URLPATH_ANTIPATTERN,  # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/ doesn't have a newsletter form
-            spa_donation=r"^/es/apoyanos/?$",
-            spa_article=r"^/?$",  # TODO
-            spa_section=r"^/es/(dallas\-forgot|noticias\-de\-dallas|food\-apartheid\-es|south\-dallas|sin\-categorizar|west\-dallas|tag/[a-zA-Z\d\-]+)/?$",
-            spa_author_profile=r"^/es/author/[a-zA-Z\-]+/?$",
-        ),
-    ]
+COMPONENT_ZERO = DfpBilingualComponent(
+    effective_starting=datetime(1970, 1, 1),
+    eng_home=r"^/$",
+    eng_about_us=r"^/(about\-us|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
+    eng_newsletter=r"^/(text\-and\-email\-notifications)|(how\-do\-you\-like\-your\-news)/?$",
+    eng_donation=r"^/support\-dfp/?$",
+    eng_article=r"^/(dallas\-news|project/[a-zA-Z\d\-%]+?|south\-dallas|uncategorized|west\-dallas)/[a-zA-Z\d\-%]+/?$",
+    eng_section=r"^/(dallas\-forgot|dallas\-news|food\-apartheid|south\-dallas|uncategorized|west\-dallas|tag/[a-zA-Z\d\-%]+)/?$",
+    eng_author_profile=r"^/author/[a-zA-Z\-%]+/?$",
+    spa_home=r"^/es/?$",
+    spa_about_us=r"^/es/(sobre\-nosotros|exponiendo\-nuestra\-parcialidad)/?$",
+    spa_newsletter=URLPATH_ANTIPATTERN,  # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/ doesn't have a newsletter form
+    spa_donation=r"^/es/apoyanos/?$",
+    spa_article=r"^/es/(noticias\-de\-dallas|south\-dallas|sin\-categorizar|west\-dallas)/?$",
+    spa_section=r"^/es/(dallas\-forgot|noticias\-de\-dallas|food\-apartheid\-es|south\-dallas|sin\-categorizar|west\-dallas|tag/[a-zA-Z\d\-%]+)/?$",
+    spa_author_profile=r"^/es/author/[a-zA-Z\-%]+/?$",
 )
+
+
+CLASSIFIER = SitePageClassifier(components=[COMPONENT_ZERO])
