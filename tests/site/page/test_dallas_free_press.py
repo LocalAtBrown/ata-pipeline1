@@ -15,13 +15,13 @@ class TestComponentZero:
     def patterns_spa(self) -> Patterns:
         return COMPONENT_ZERO.component_spa.patterns
 
-    def test_eng_home(self, patterns_eng):
+    def test_eng_home(self, patterns_eng) -> None:
         _test_pattern(patterns_eng.home, ["/"])
 
-    def test_spa_home(self, patterns_spa):
+    def test_spa_home(self, patterns_spa) -> None:
         _test_pattern(patterns_spa.home, append_slash(["/es"]))
 
-    def test_eng_about_us(self, patterns_eng):
+    def test_eng_about_us(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.about_us,
             append_slash(
@@ -33,10 +33,10 @@ class TestComponentZero:
             ),
         )
 
-    def test_spa_about_us(self, patterns_spa):
+    def test_spa_about_us(self, patterns_spa) -> None:
         _test_pattern(patterns_spa.about_us, append_slash(["/es/sobre-nosotros", "/es/exponiendo-nuestra-parcialidad"]))
 
-    def test_eng_newsletter(self, patterns_eng):
+    def test_eng_newsletter(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.newsletter,
             append_slash(
@@ -47,12 +47,12 @@ class TestComponentZero:
             ),
         )
 
-    def test_spa_newsletter(self, patterns_eng):
+    def test_spa_newsletter(self, patterns_eng) -> None:
         # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/
         # doesn't have a newsletter form
         pass
 
-    def test_eng_donation(self, patterns_eng):
+    def test_eng_donation(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.donation,
             append_slash(
@@ -62,10 +62,10 @@ class TestComponentZero:
             ),
         )
 
-    def test_spa_donation(self, patterns_spa):
+    def test_spa_donation(self, patterns_spa) -> None:
         _test_pattern(patterns_spa.donation, append_slash(["/es/apoyanos"]))
 
-    def test_eng_article(self, patterns_eng):
+    def test_eng_article(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.article,
             append_slash(
@@ -83,7 +83,7 @@ class TestComponentZero:
             ),
         )
 
-    def test_spa_article(self, patterns_spa):
+    def test_spa_article(self, patterns_spa) -> None:
         _test_pattern(
             patterns_spa.article,
             [
@@ -94,7 +94,7 @@ class TestComponentZero:
             ],
         )
 
-    def test_eng_section(self, patterns_eng):
+    def test_eng_section(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.section,
             append_slash(
@@ -112,7 +112,7 @@ class TestComponentZero:
             ),
         )
 
-    def test_spa_section(self, patterns_spa):
+    def test_spa_section(self, patterns_spa) -> None:
         _test_pattern(
             patterns_spa.section,
             append_slash(
@@ -130,7 +130,7 @@ class TestComponentZero:
             ),
         )
 
-    def test_eng_author_profile(self, patterns_eng):
+    def test_eng_author_profile(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.author_profile,
             append_slash(
@@ -142,7 +142,7 @@ class TestComponentZero:
             ),
         )
 
-    def test_spa_author_profile(self, patterns_spa):
+    def test_spa_author_profile(self, patterns_spa) -> None:
         _test_pattern(
             patterns_spa.author_profile,
             append_slash(

@@ -1,11 +1,24 @@
 from datetime import datetime
 
 from ata_pipeline1.helpers.datetime import TIMESTAMP_POSIX
-from ata_pipeline1.site.page.base import SitePageClassifier, SitePageClassifierComponent
+from ata_pipeline1.site.page.base import (
+    URLPATH_ANTIPATTERN,
+    SitePageClassifier,
+    SitePageClassifierComponent,
+)
 
 # Original AfroLA component
 # TODO: Rules
-COMPONENT_ZERO = SitePageClassifierComponent(effective_starting=TIMESTAMP_POSIX)
+COMPONENT_ZERO = SitePageClassifierComponent(
+    effective_starting=TIMESTAMP_POSIX,
+    home=r"^/$",
+    about_us=r"^/$",  # Same as home
+    newsletter=r"^/subscribe/?$",
+    donation=r"^/$",  # Same as home
+    article=r"^/news/[a-zA-Z\d\-%]+/?$",
+    section=r"^/news/?$",
+    author_profile=URLPATH_ANTIPATTERN,  # No author page
+)
 
 # Pre-launch period
 # TODO: Hour, minutes, seconds & rules
