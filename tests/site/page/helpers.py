@@ -10,10 +10,10 @@ def _test_pattern(pattern: re.Pattern[str], urlpaths: Iterable[str]):
     for path in urlpaths:
         re_match = pattern.search(path)
         # Assert match exists
-        assert bool(re_match)
+        assert bool(re_match), f"{path} failed"
         index_start, index_end = re_match.span()
         # Assert match is entire string
-        assert index_end - index_start == len(path)
+        assert index_end - index_start == len(path), f"{path} failed"
 
 
 def append_slash(urlpaths: List[str]) -> Set[str]:
