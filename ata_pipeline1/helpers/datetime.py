@@ -4,7 +4,10 @@ from typing import List
 
 import numpy as np
 
+TIMESTAMP_POSIX = datetime(1970, 1, 1)
 
+
+# ---------- MIXINS ----------
 class AppliesDuringTimePeriod(ABC):
     """
     Mixin to be added to a class (e.g., newsletter-submission validator by time period)

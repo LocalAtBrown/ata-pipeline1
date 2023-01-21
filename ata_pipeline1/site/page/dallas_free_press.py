@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from ata_pipeline1.helpers.datetime import TIMESTAMP_POSIX
 from ata_pipeline1.site.page.base import (
     URLPATH_ANTIPATTERN,
     SitePageClassifier,
@@ -88,7 +89,7 @@ class DfpBilingualComponent(SitePageClassifierComponent):
 
 # Original DFP component
 COMPONENT_ZERO = DfpBilingualComponent(
-    effective_starting=datetime(1970, 1, 1),
+    effective_starting=TIMESTAMP_POSIX,
     eng_home=r"^/$",
     eng_about_us=r"^/(about\-us|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
     eng_newsletter=r"^/(text\-and\-email\-notifications|how\-do\-you\-like\-your\-news)/?$",
