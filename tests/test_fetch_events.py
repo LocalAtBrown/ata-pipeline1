@@ -9,7 +9,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
 from ata_pipeline1.fetch_events import fetch_events
-from ata_pipeline1.helpers.enums import EventName, SiteName
+from ata_pipeline1.helpers.enums import EventName
+from ata_pipeline1.site.names import SiteName
 
 
 @pytest.fixture
@@ -51,6 +52,7 @@ def create_and_drop_tables(engine: Engine) -> Generator[None, None, None]:
         SQLModel.metadata.drop_all(engine)
 
 
+@pytest.mark.integration
 def test_fetch_events(
     single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
 ) -> None:
@@ -77,6 +79,7 @@ def test_fetch_events(
     assert event_as_dict == data[0]
 
 
+@pytest.mark.integration
 def test_fetch_events_wrong_site(
     single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
 ) -> None:
@@ -99,6 +102,7 @@ def test_fetch_events_wrong_site(
     assert df.empty
 
 
+@pytest.mark.integration
 def test_fetch_events_wrong_events(
     single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
 ) -> None:
@@ -121,6 +125,7 @@ def test_fetch_events_wrong_events(
     assert df.empty
 
 
+@pytest.mark.integration
 def test_fetch_events_wrong_time(
     single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
 ) -> None:
