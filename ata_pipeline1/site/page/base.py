@@ -17,7 +17,7 @@ from ata_pipeline1.helpers.mixins import (
 URLPATH_ANTIPATTERN = r"\s"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Patterns:
     home: re.Pattern[str]
     about_us: re.Pattern[str]

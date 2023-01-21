@@ -86,23 +86,26 @@ class DfpBilingualComponent(SitePageClassifierComponent):
         return self.component_eng.is_author_profile(event) or self.component_spa.is_author_profile(event)
 
 
+# Original DFP component
 COMPONENT_ZERO = DfpBilingualComponent(
     effective_starting=datetime(1970, 1, 1),
     eng_home=r"^/$",
     eng_about_us=r"^/(about\-us|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
-    eng_newsletter=r"^/(text\-and\-email\-notifications)|(how\-do\-you\-like\-your\-news)/?$",
+    eng_newsletter=r"^/(text\-and\-email\-notifications|how\-do\-you\-like\-your\-news)/?$",
     eng_donation=r"^/support\-dfp/?$",
     eng_article=r"^/(dallas\-news|project/[a-zA-Z\d\-%]+?|south\-dallas|uncategorized|west\-dallas)/[a-zA-Z\d\-%]+/?$",
     eng_section=r"^/(dallas\-forgot|dallas\-news|food\-apartheid|south\-dallas|uncategorized|west\-dallas|tag/[a-zA-Z\d\-%]+)/?$",
-    eng_author_profile=r"^/author/[a-zA-Z\-%]+/?$",
+    eng_author_profile=r"^/author/[a-zA-Z\d\-%]+/?$",
     spa_home=r"^/es/?$",
     spa_about_us=r"^/es/(sobre\-nosotros|exponiendo\-nuestra\-parcialidad)/?$",
     spa_newsletter=URLPATH_ANTIPATTERN,  # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/ doesn't have a newsletter form
     spa_donation=r"^/es/apoyanos/?$",
-    spa_article=r"^/es/(noticias\-de\-dallas|south\-dallas|sin\-categorizar|west\-dallas)/?$",
+    spa_article=r"^/es/(noticias\-de\-dallas|south\-dallas|sin\-categorizar|west\-dallas)/[a-zA-Z\d\-%]+/?$",
     spa_section=r"^/es/(dallas\-forgot|noticias\-de\-dallas|food\-apartheid\-es|south\-dallas|sin\-categorizar|west\-dallas|tag/[a-zA-Z\d\-%]+)/?$",
-    spa_author_profile=r"^/es/author/[a-zA-Z\-%]+/?$",
+    spa_author_profile=r"^/es/author/[a-zA-Z\d\-%]+/?$",
 )
 
+# When DFP rules change, add a new component here (create a new child class of SitePageClassifierComponent
+# as necessary) and add it to the list of components in CLASSIFIER
 
 CLASSIFIER = SitePageClassifier(components=[COMPONENT_ZERO])
