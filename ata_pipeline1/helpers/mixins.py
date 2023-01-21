@@ -46,6 +46,6 @@ class ChangesBetweenTimePeriods(ABC):
         This is essentially assigning said timestamp into an appropriate bin.
         """
         # Get component index (= bin index - 1)
-        index = np.searchsorted(self.component_timestamps_float, timestamp.timestamp()) - 1
+        index = np.searchsorted(self.component_timestamps_float, timestamp.timestamp(), side="right") - 1
 
         return self.components[index]
