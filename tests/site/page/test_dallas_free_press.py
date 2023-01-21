@@ -16,7 +16,7 @@ class TestComponentZero:
         return COMPONENT_ZERO.component_spa.patterns
 
     def test_eng_home(self, patterns_eng) -> None:
-        _test_pattern(patterns_eng.home, ["/", "/page/2"])
+        _test_pattern(patterns_eng.home, append_slash(["/", "/page/2"]))
 
     def test_spa_home(self, patterns_spa) -> None:
         _test_pattern(patterns_spa.home, append_slash(["/es", "/es/page/2"]))
@@ -86,12 +86,14 @@ class TestComponentZero:
     def test_spa_article(self, patterns_spa) -> None:
         _test_pattern(
             patterns_spa.article,
-            [
-                "/es/noticias-de-dallas/la-celebracion-del-16-de-junio-del-centro-comunitario-de-mlk-es-diferente-pero-impactante",
-                "/es/south-dallas/adonde-vas-el-sabado-por-la-manana-como-un-plan-de-zonificacion-podria-dar-paso-a-nuevos-negocios-en-el-sur-de-dallas",
-                "/es/sin-categorizar/horas-antes-de-la-decision-139-vecinos-de-la-bajada-piden-oposicion-a-la-torre-de-oficinas-de-west-dallas",
-                "/es/west-dallas/los-propietarios-de-viviendas-de-west-dallas-no-podian-acceder-a-los-fondos-municipales-para-repararlas-asi-que-el-ayuntamiento-elimino-la-barrera",
-            ],
+            append_slash(
+                [
+                    "/es/noticias-de-dallas/la-celebracion-del-16-de-junio-del-centro-comunitario-de-mlk-es-diferente-pero-impactante",
+                    "/es/south-dallas/adonde-vas-el-sabado-por-la-manana-como-un-plan-de-zonificacion-podria-dar-paso-a-nuevos-negocios-en-el-sur-de-dallas",
+                    "/es/sin-categorizar/horas-antes-de-la-decision-139-vecinos-de-la-bajada-piden-oposicion-a-la-torre-de-oficinas-de-west-dallas",
+                    "/es/west-dallas/los-propietarios-de-viviendas-de-west-dallas-no-podian-acceder-a-los-fondos-municipales-para-repararlas-asi-que-el-ayuntamiento-elimino-la-barrera",
+                ]
+            ),
         )
 
     def test_eng_section(self, patterns_eng) -> None:
