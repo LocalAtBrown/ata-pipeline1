@@ -8,7 +8,6 @@ from ata_pipeline1.site.page.base import (
 )
 
 # Original AfroLA component
-# TODO: Rules
 COMPONENT_ZERO = SitePageClassifierComponent(
     effective_starting=TIMESTAMP_POSIX,
     home=r"^/$",
@@ -21,8 +20,16 @@ COMPONENT_ZERO = SitePageClassifierComponent(
 )
 
 # Pre-launch period
-# TODO: Hour, minutes, seconds & rules
-COMPONENT_221215 = SitePageClassifierComponent(effective_starting=datetime(2022, 12, 15))
+COMPONENT_221215 = SitePageClassifierComponent(
+    effective_starting=datetime(2022, 12, 15),
+    home=r"^/comingsoon/?$",
+    about_us=r"^/comingsoon/?$",  # Same as home
+    newsletter=r"^/subscribe/?$",
+    donation=r"^/comingsoon/?$",  # Same as home
+    article=r"^/comingsoon/news/[a-zA-Z\d\-%]+/?$",
+    section=r"^/comingsoon/news/?$",
+    author_profile=URLPATH_ANTIPATTERN,  # No author page
+)
 
 # Post-launch period
 # TODO: Rules
