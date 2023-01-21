@@ -11,10 +11,7 @@ from ata_pipeline1.helpers.datetime import (
     ChangesBetweenTimePeriods,
 )
 from ata_pipeline1.helpers.enums import FieldSnowplow, PageType
-
-# URL-path antipattern string that will definitely never match anything inside an
-# actual URL
-URLPATH_ANTIPATTERN = r"\s<>%{}`"
+from ata_pipeline1.helpers.re import ANTIPATTERN_URLPATH
 
 
 @dataclass(frozen=True)
@@ -109,13 +106,13 @@ class SitePageClassifierComponent(PageClassifier, AppliesDuringTimePeriod):
         self,
         effective_starting: datetime,
         use_default_patterns_schema: bool = True,
-        home: str = URLPATH_ANTIPATTERN,
-        about_us: str = URLPATH_ANTIPATTERN,
-        newsletter: str = URLPATH_ANTIPATTERN,
-        donation: str = URLPATH_ANTIPATTERN,
-        article: str = URLPATH_ANTIPATTERN,
-        section: str = URLPATH_ANTIPATTERN,
-        author_profile: str = URLPATH_ANTIPATTERN,
+        home: str = ANTIPATTERN_URLPATH,
+        about_us: str = ANTIPATTERN_URLPATH,
+        newsletter: str = ANTIPATTERN_URLPATH,
+        donation: str = ANTIPATTERN_URLPATH,
+        article: str = ANTIPATTERN_URLPATH,
+        section: str = ANTIPATTERN_URLPATH,
+        author_profile: str = ANTIPATTERN_URLPATH,
     ) -> None:
         self.set_effective_starting(effective_starting)
 

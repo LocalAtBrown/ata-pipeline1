@@ -5,11 +5,12 @@ import pandas as pd
 
 from ata_pipeline1.helpers.datetime import TIMESTAMP_POSIX
 from ata_pipeline1.helpers.enums import PageType
-from ata_pipeline1.site.page.base import (
-    URLPATH_ANTIPATTERN,
-    SitePageClassifier,
-    SitePageClassifierComponent,
+from ata_pipeline1.helpers.re import (
+    ANTIPATTERN_URLPATH,
+    PATTERN_PAGINATION,
+    PATTERN_SLUG,
 )
+from ata_pipeline1.site.page.base import SitePageClassifier, SitePageClassifierComponent
 
 
 class DfpBilingualComponent(SitePageClassifierComponent):
@@ -77,20 +78,20 @@ class DfpBilingualComponent(SitePageClassifierComponent):
 # TODO: Section pages will probably be paginated some day. Keep an eye on it
 COMPONENT_ZERO = DfpBilingualComponent(
     effective_starting=TIMESTAMP_POSIX,
-    eng_home=r"^(/page/\d+/?|/)$",
+    eng_home=rf"^(/{PATTERN_PAGINATION}/?|/)$",
     eng_about_us=r"^/(about\-us|dallas\-free\-press\-editorial\-content|whats\-a\-news\-desert)/?$",
     eng_newsletter=r"^/(text\-and\-email\-notifications|how\-do\-you\-like\-your\-news)/?$",
     eng_donation=r"^/support\-dfp/?$",
-    eng_article=r"^/(dallas\-news|project/[a-zA-Z\d\-%]+?|south\-dallas|uncategorized|west\-dallas)/[a-zA-Z\d\-%]+/?$",
-    eng_section=r"^/(dallas\-forgot|dallas\-news|food\-apartheid|south\-dallas|uncategorized|west\-dallas|tag/[a-zA-Z\d\-%]+)/?$",
-    eng_author_profile=r"^/author/[a-zA-Z\d\-%]+/?$",
-    spa_home=r"^/es(/page/\d+)?/?$",
+    eng_article=rf"^/(dallas\-news|project/{PATTERN_SLUG}?|south\-dallas|uncategorized|west\-dallas)/{PATTERN_SLUG}/?$",
+    eng_section=rf"^/(dallas\-forgot|dallas\-news|food\-apartheid|south\-dallas|uncategorized|west\-dallas|tag/{PATTERN_SLUG})/?$",
+    eng_author_profile=rf"^/author/{PATTERN_SLUG}/?$",
+    spa_home=rf"^/es(/{PATTERN_PAGINATION})?/?$",
     spa_about_us=r"^/es/(sobre\-nosotros|exponiendo\-nuestra\-parcialidad)/?$",
-    spa_newsletter=URLPATH_ANTIPATTERN,  # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/ doesn't have a newsletter form
+    spa_newsletter=ANTIPATTERN_URLPATH,  # Unlike its English counterpart, the Spanish text-and-email-notifications page https://dallasfreepress.com/es/notificaciones-de-texto-y-correo-electronico/ doesn't have a newsletter form
     spa_donation=r"^/es/apoyanos/?$",
-    spa_article=r"^/es/(noticias\-de\-dallas|south\-dallas|sin\-categorizar|west\-dallas)/[a-zA-Z\d\-%]+/?$",
-    spa_section=r"^/es/(dallas\-forgot|noticias\-de\-dallas|food\-apartheid\-es|south\-dallas|sin\-categorizar|west\-dallas|tag/[a-zA-Z\d\-%]+)/?$",
-    spa_author_profile=r"^/es/author/[a-zA-Z\d\-%]+/?$",
+    spa_article=rf"^/es/(noticias\-de\-dallas|south\-dallas|sin\-categorizar|west\-dallas)/{PATTERN_SLUG}/?$",
+    spa_section=rf"^/es/(dallas\-forgot|noticias\-de\-dallas|food\-apartheid\-es|south\-dallas|sin\-categorizar|west\-dallas|tag/{PATTERN_SLUG})/?$",
+    spa_author_profile=rf"^/es/author/{PATTERN_SLUG}/?$",
 )
 
 # When DFP rules change, add a new component here (create a new child class of SitePageClassifierComponent

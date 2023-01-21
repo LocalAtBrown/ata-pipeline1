@@ -1,11 +1,8 @@
 from datetime import datetime
 
 from ata_pipeline1.helpers.datetime import TIMESTAMP_POSIX
-from ata_pipeline1.site.page.base import (
-    URLPATH_ANTIPATTERN,
-    SitePageClassifier,
-    SitePageClassifierComponent,
-)
+from ata_pipeline1.helpers.re import ANTIPATTERN_URLPATH, PATTERN_SLUG
+from ata_pipeline1.site.page.base import SitePageClassifier, SitePageClassifierComponent
 
 # Original AfroLA component
 COMPONENT_ZERO = SitePageClassifierComponent(
@@ -14,9 +11,9 @@ COMPONENT_ZERO = SitePageClassifierComponent(
     about_us=r"^/$",  # Same as home
     newsletter=r"^/subscribe/?$",
     donation=r"^/$",  # Same as home
-    article=r"^/news/[a-zA-Z\d\-%]+/?$",
+    article=rf"^/news/{PATTERN_SLUG}/?$",
     section=r"^/news/?$",
-    author_profile=URLPATH_ANTIPATTERN,  # No author page
+    author_profile=ANTIPATTERN_URLPATH,  # No author page
 )
 
 # Pre-launch period
@@ -26,9 +23,9 @@ COMPONENT_221215 = SitePageClassifierComponent(
     about_us=r"^/comingsoon/?$",  # Same as home
     newsletter=r"^/subscribe/?$",
     donation=r"^/comingsoon/?$",  # Same as home
-    article=r"^/comingsoon/news/[a-zA-Z\d\-%]+/?$",
+    article=rf"^/comingsoon/news/{PATTERN_SLUG}/?$",
     section=r"^/comingsoon/news/?$",
-    author_profile=URLPATH_ANTIPATTERN,  # No author page
+    author_profile=ANTIPATTERN_URLPATH,  # No author page
 )
 
 # Post-launch period
