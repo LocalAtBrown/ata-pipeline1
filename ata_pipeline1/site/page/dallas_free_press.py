@@ -17,7 +17,7 @@ class DfpBilingualComponent(SitePageClassifierComponent):
     """
     Custom rule set for DFP given that it has pages in both English and Spanish.
 
-    TODO: For tests, refer to the sitemap (https://dallasfreepress.com/sitemap_index.xml)
+    For tests, refer to the sitemap (https://dallasfreepress.com/sitemap_index.xml)
     for test examples of URL paths. In an ideal world, we'd like to build a system that
     monitors this sitemap and changes regex rules accordingly, but hard-coded rules will
     have to work for now.
