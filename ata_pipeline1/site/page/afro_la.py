@@ -18,7 +18,9 @@ COMPONENT_ZERO = SitePageClassifierComponent(
 
 # Pre-launch period
 COMPONENT_221215 = SitePageClassifierComponent(
-    effective_starting=datetime(2022, 12, 15),
+    effective_starting=datetime(
+        2022, 12, 15, 12, 0, 0
+    ),  # the hour-min-sec mark was determined by looking at the database
     home=r"^/comingsoon/?$",
     about_us=r"^/comingsoon/?$",  # Same as home
     newsletter=r"^/subscribe/?$",
