@@ -26,7 +26,6 @@ class TestComponentZero:
                     "/guest-contributors",
                     "/impact",
                     "/our-team",
-                    "/privacy",
                     "/team/geoffrey-king",
                     "/team/leah-chen-price",
                 ]
