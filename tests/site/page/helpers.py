@@ -8,9 +8,8 @@ def _test_pattern(pattern: re.Pattern[str], urlpaths: Iterable[str]):
     matches the entire string for each string.
     """
     for path in urlpaths:
-        re_match = pattern.fullmatch(path)
-        # Assert match exists
-        assert bool(re_match), f"{path} failed"
+        # Assert full match exists
+        assert pattern.fullmatch(path), f"{path} failed"
 
 
 def append_slash(urlpaths: List[str]) -> Set[str]:
