@@ -1,15 +1,8 @@
 from ata_pipeline1.site.names import SiteName
-from ata_pipeline1.site.sites import AfroLa, DallasFreePress, OpenVallejo, The19th
-
-# Site objects
-AFRO_LA = AfroLa()
-DALLAS_FREE_PRESS = DallasFreePress()
-OPEN_VALLEJO = OpenVallejo()
-THE_19TH = The19th()
-
-SITES = {
-    SiteName.AFRO_LA: AFRO_LA,
-    SiteName.DALLAS_FREE_PRESS: DALLAS_FREE_PRESS,
-    SiteName.OPEN_VALLEJO: OPEN_VALLEJO,
-    SiteName.THE_19TH: THE_19TH,
-}
+from ata_pipeline1.site.sites import (
+    AFRO_LA,
+    DALLAS_FREE_PRESS,
+    OPEN_VALLEJO,
+    SITES,
+    THE_19TH,
+)
