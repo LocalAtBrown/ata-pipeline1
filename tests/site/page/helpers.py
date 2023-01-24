@@ -21,4 +21,5 @@ def append_slash(urlpaths: List[str]) -> Set[str]:
     Appends a slash to each URL paths in a list if it doesn't already have one and
     returns a set of unique URL paths.
     """
-    return {f"{path}/" if path[-1] != "/" else path for path in urlpaths}
+    urlpaths_with_slash = [f"{path}/" if path[-1] != "/" else path for path in urlpaths]
+    return {*urlpaths, *urlpaths_with_slash}
