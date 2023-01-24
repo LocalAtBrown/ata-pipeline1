@@ -1,7 +1,7 @@
 import pytest
 
 from ata_pipeline1.site.page.base import Patterns
-from ata_pipeline1.site.page.open_vallejo import COMPONENT_ZERO
+from ata_pipeline1.site.page.the_19th import COMPONENT_ZERO
 from tests.site.page.helpers import _test_pattern, append_slash
 
 
@@ -15,28 +15,16 @@ class TestComponentZero:
         _test_pattern(patterns.home, append_slash(["/", "/page/2"]))
 
     def test_about_us(self, patterns) -> None:
-        _test_pattern(
-            patterns.about_us,
-            append_slash(
-                [
-                    "/about-us",
-                    "/awards",
-                    "/board-and-advisors",
-                    "/ethics",
-                    "/guest-contributors",
-                    "/impact",
-                    "/our-team",
-                    "/team/geoffrey-king",
-                    "/team/leah-chen-price",
-                ]
-            ),
-        )
+        _test_pattern(patterns.about_us, append_slash(["/about", "/community-guidelines", "/team"]))
 
     def test_newsletter(self, patterns) -> None:
-        _test_pattern(patterns.newsletter, append_slash(["/newsletter"]))
+        _test_pattern(
+            patterns.newsletter,
+            append_slash(["/newsletters", "/newsletters/daily", "/newsletters/events", "/newsletters/weekly"]),
+        )
 
     def test_donation(self, patterns) -> None:
-        _test_pattern(patterns.donation, append_slash(["/donate"]))
+        _test_pattern(patterns.donation, append_slash(["/membership", "/major-gifts"]))
 
     def test_article(self, patterns) -> None:
         # Only test against a representative sample of the articles since it'd be
@@ -45,8 +33,10 @@ class TestComponentZero:
             patterns.article,
             append_slash(
                 [
-                    "/2020/12/25/blue-life",
-                    "/2022/09/21/vallejo-patrol-staffing-drops-below-1975-levels",
+                    "/2020/02/for-klobuchar-and-warren-the-2020-primary-is-an-endurance-race",
+                    "/2022/05/election-2022-women-governor-lieutenant-governor",
+                    "/2023/01/roe-v-wade-50th-anniversary-abortion-access-changes",
+                    "/2023/01/march-for-life-post-roe-anniversary-50-abortion-federal",
                 ]
             ),
         )
@@ -58,12 +48,14 @@ class TestComponentZero:
             patterns.section,
             append_slash(
                 [
-                    "/category/analysis",
-                    "/category/city-hall/city-manager",
-                    "/category/news/page/2",
-                    "/category/opinion/from-the-editor",
-                    "/tag/open-vallejo-news",
-                    "/tag/news/page/2",
+                    "/archive",
+                    "/tag/abortion",
+                    "/tag/childrens-health",
+                    "/tag/covid-19-vaccine",
+                    "/collections/changing-child-care",
+                    "/collections/19th-explains",
+                    "/topics/election-2022",
+                    "/topics/inside-the-19th",
                 ]
             ),
         )
@@ -75,8 +67,9 @@ class TestComponentZero:
             patterns.author_profile,
             append_slash(
                 [
-                    "/author/laurence-du-sault/",
-                    "/author/geoffrey-king/page/2/",
+                    "/author/abby-johnston",
+                    "/author/ann-givens-the-trace-staff-writer",
+                    "/author/the-19th-staff",
                 ]
             ),
         )

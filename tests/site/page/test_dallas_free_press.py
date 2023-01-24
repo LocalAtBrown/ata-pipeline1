@@ -66,6 +66,8 @@ class TestComponentZero:
         _test_pattern(patterns_spa.donation, append_slash(["/es/apoyanos"]))
 
     def test_eng_article(self, patterns_eng) -> None:
+        # Only test against a representative sample of the articles since it'd be
+        # impractical to test against all existing & future articles.
         _test_pattern(
             patterns_eng.article,
             append_slash(
@@ -84,6 +86,8 @@ class TestComponentZero:
         )
 
     def test_spa_article(self, patterns_spa) -> None:
+        # Only test against a representative sample of the articles since it'd be
+        # impractical to test against all existing & future articles.
         _test_pattern(
             patterns_spa.article,
             append_slash(
@@ -97,6 +101,8 @@ class TestComponentZero:
         )
 
     def test_eng_section(self, patterns_eng) -> None:
+        # Only test against a representative sample of the sections since it'd be
+        # impractical to test against all existing & future sections.
         _test_pattern(
             patterns_eng.section,
             append_slash(
@@ -115,6 +121,8 @@ class TestComponentZero:
         )
 
     def test_spa_section(self, patterns_spa) -> None:
+        # Only test against a representative sample of the sections since it'd be
+        # impractical to test against all existing & future sections.
         _test_pattern(
             patterns_spa.section,
             append_slash(
@@ -133,6 +141,8 @@ class TestComponentZero:
         )
 
     def test_eng_author_profile(self, patterns_eng) -> None:
+        # Only test against a representative sample of the authors since it'd be
+        # impractical to test against all existing & future authors.
         _test_pattern(
             patterns_eng.author_profile,
             append_slash(
@@ -145,6 +155,8 @@ class TestComponentZero:
         )
 
     def test_spa_author_profile(self, patterns_spa) -> None:
+        # Only test against a representative sample of the authors since it'd be
+        # impractical to test against all existing & future authors.
         _test_pattern(
             patterns_spa.author_profile,
             append_slash(
