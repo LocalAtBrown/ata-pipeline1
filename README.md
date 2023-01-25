@@ -14,9 +14,8 @@ ML pipeline for automating the ask.
 
 ## Usage
 
-TODO: Describe how to use your project!
-TODO: Do you need an installation, contributing, community, documentation, or other section here?
-Depends on the project, make sure to add it if it makes sense to do so.
+You must have a Postgres cluster with tables as defined by [ata-db-models](https://github.com/LocalAtBrown/ata-db-models/).
+TODO more
 
 ## Development
 
@@ -56,3 +55,9 @@ To update dependencies in your local environment, make changes to the `pyproject
 
 To manually run rests, simply run `pytest tests` from the root directory of the project. Explore the `pytest` docs (linked above)
 to see more options.
+
+Running the tests requires a postgres instance. An easy way to spin one up is via Docker:
+`docker run --rm --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -p 127.0.0.1:5432:5432/tcp postgres`
+
+Notably, the host is `127.0.0.1`, the port is `5432`, the username, password, and db name are all "postgres". You can
+override these with environment variables for `HOST`, `PORT`, `USERNAME`, `PASSWORD`, and `DB_NAME`.

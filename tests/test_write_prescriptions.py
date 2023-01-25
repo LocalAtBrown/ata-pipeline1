@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from ata_db_models.models import Prescription
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 from sqlmodel import select
 
 from ata_pipeline1.helpers.enums import SiteName
@@ -26,11 +26,11 @@ def prescriptions_as_df(prescriptions: list[Prescription]) -> pd.DataFrame:
     return pd.DataFrame(data=[p.dict() for p in prescriptions])
 
 
-def test_write_prescriptions(prescriptions_as_df: pd.DataFrame, engine: Engine, session_factory: sessionmaker) -> None:
+def test_write_prescriptions(prescriptions_as_df: pd.DataFrame, engine: Engine) -> None:
     with create_and_drop_tables(engine):
-        rows_written = write_prescriptions(df=prescriptions_as_df, session_factory=session_factory)
+        rows_written = write_prescriptions(df=prescriptions_as_df, engine=engine)
         assert rows_written == prescriptions_as_df.shape[0]
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             statement = select(Prescription)
             results = session.execute(statement)
             data = [prescription[0].dict() for prescription in results]
@@ -39,7 +39,7 @@ def test_write_prescriptions(prescriptions_as_df: pd.DataFrame, engine: Engine, 
     assert prescriptions_as_df.equals(from_db)
 
 
-def test_write_prescriptions_no_data(engine: Engine, session_factory: sessionmaker) -> None:
+def test_write_prescriptions_no_data(engine: Engine) -> None:
     with create_and_drop_tables(engine):
-        rows_written = write_prescriptions(df=pd.DataFrame(), session_factory=session_factory)
+        rows_written = write_prescriptions(df=pd.DataFrame(), engine=engine)
         assert rows_written == 0

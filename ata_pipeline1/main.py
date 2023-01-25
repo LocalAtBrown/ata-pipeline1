@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from ata_db_models.helpers import get_conn_string
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
 from ata_pipeline1.fetch_events import fetch_events
 from ata_pipeline1.helpers.enums import EventName, SiteName
@@ -13,7 +12,6 @@ from ata_pipeline1.write_prescriptions import write_prescriptions
 
 def run() -> None:
     engine = create_engine(get_conn_string())
-    session_factory = sessionmaker(engine)
 
     site_name = os.getenv("PARTNER", SiteName.AFRO_LA)
 
@@ -32,7 +30,11 @@ def run() -> None:
         ],
         start=start,
         end=end,
-        session_factory=session_factory,
+        engine=engine,
     )
-    prescriptions = process(events)
-    write_prescriptions(prescriptions, session_factory)
+    prescriptions = process(events=events)
+    write_prescriptions(df=prescriptions, engine=engine)
+
+
+if __name__ == "__main__":
+    run()

@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 import pytest
 from ata_db_models.models import Event, Prescription
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 from sqlmodel import select
 
 from ata_pipeline1.helpers.enums import EventName, SiteName
@@ -42,10 +42,10 @@ def many_events(current_timestamp: datetime, many_uuids: list[UUID]) -> list[Eve
     ]
 
 
-def test_run(many_events: list[Event], many_uuids: list[UUID], engine: Engine, session_factory: sessionmaker) -> None:
+def test_run(many_events: list[Event], many_uuids: list[UUID], engine: Engine) -> None:
     # set up db
     with create_and_drop_tables(engine):
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             # put in test data
             session.add_all(many_events)
             session.commit()
@@ -54,7 +54,7 @@ def test_run(many_events: list[Event], many_uuids: list[UUID], engine: Engine, s
         run()
 
         # verify info in Prescription
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             statement = select(Prescription)
             results = session.execute(statement)
             prescriptions = [prescription[0] for prescription in results]
