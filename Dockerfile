@@ -15,4 +15,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y libpq-dev
 COPY --from=builder /root/.local /root/.local
 COPY /ata_pipeline1/ /ata_pipeline1
 ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/:$PYTHONPATH
 CMD ["python", "ata_pipeline1/main.py" ]
