@@ -4,6 +4,7 @@ from ata_pipeline1.preprocessors.non_aggregate import (
     AddFieldEventParentId,
     AddFieldFormSubmitIsNewsletter,
     AddFieldMaxScrollDepth,
+    AddFieldsPageType,
     ConvertFieldTypes,
     SortFieldTimestamp,
 )

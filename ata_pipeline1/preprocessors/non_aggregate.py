@@ -10,8 +10,11 @@ import user_agents as ua
 from ata_pipeline1.helpers.enums import EventName, FieldNew, FieldSnowplow
 from ata_pipeline1.helpers.logging import logging
 from ata_pipeline1.preprocessors.base import Preprocessor
-from ata_pipeline1.site.names import SiteName
-from ata_pipeline1.site.newsletter import SiteNewsletterSignupValidator
+from ata_pipeline1.site import (
+    SiteName,
+    SiteNewsletterSignupValidator,
+    SitePageClassifier,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -242,8 +245,48 @@ class AddFieldsPageType(Preprocessor):
     in the style of one-hot encoding).
     """
 
+    site_page_type_classifier: SitePageClassifier
+    field_page_urlpath: FieldSnowplow = FieldSnowplow.PAGE_URLPATH
+    field_page_is_home: FieldNew = FieldNew.PAGE_IS_HOME
+    field_page_is_about_us: FieldNew = FieldNew.PAGE_IS_ABOUT_US
+    field_page_is_newsletter: FieldNew = FieldNew.PAGE_IS_NEWSLETTER
+    field_page_is_donation: FieldNew = FieldNew.PAGE_IS_DONATION
+    field_page_is_article: FieldNew = FieldNew.PAGE_IS_ARTICLE
+    field_page_is_section: FieldNew = FieldNew.PAGE_IS_SECTION
+    field_page_is_author_profile: FieldNew = FieldNew.PAGE_IS_AUTHOR_PROFILE
+
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        pass
+        # Make a copy of the original so that it's not affected, but can remove
+        # this if memory is an issue
+        df = df.copy()
+
+        self.fields_to_add = [
+            self.field_page_is_home,
+            self.field_page_is_about_us,
+            self.field_page_is_newsletter,
+            self.field_page_is_donation,
+            self.field_page_is_article,
+            self.field_page_is_section,
+            self.field_page_is_author_profile,
+        ]
+
+        df[self.fields_to_add] = df.apply(self._classify_page, axis=1)
+
+        return df
+
+    def _classify_page(self, event: pd.Series) -> pd.Series:
+        return pd.Series(
+            [
+                self.site_page_type_classifier.is_home(event),
+                self.site_page_type_classifier.is_about_us(event),
+                self.site_page_type_classifier.is_newsletter(event),
+                self.site_page_type_classifier.is_donation(event),
+                self.site_page_type_classifier.is_article(event),
+                self.site_page_type_classifier.is_section(event),
+                self.site_page_type_classifier.is_author_profile(event),
+            ],
+            index=self.fields_to_add,
+        )
 
     def log_result(self, df_in, df_out) -> None:
         pass
