@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from ata_db_models.helpers import get_conn_string
 from sqlalchemy import create_engine
@@ -19,3 +21,8 @@ def engine(db_name: str) -> Engine:
 @pytest.fixture(scope="module")
 def session_factory(engine: Engine) -> sessionmaker:
     return sessionmaker(engine)
+
+
+@pytest.fixture
+def current_timestamp() -> datetime:
+    return datetime.now()

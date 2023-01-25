@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from ata_pipeline1.fetch_events import fetch_events
-from ata_pipeline1.helpers.enums import EventName
+from ata_pipeline1.helpers.enums import EventName, SiteName
 from ata_pipeline1.process import process
 from ata_pipeline1.write_prescriptions import write_prescriptions
 
@@ -15,7 +15,7 @@ def run() -> None:
     engine = create_engine(get_conn_string())
     session_factory = sessionmaker(engine)
 
-    site_name = os.getenv("PARTNER", "")
+    site_name = os.getenv("PARTNER", SiteName.AFRO_LA)
 
     # TODO can change how we set this, this is just a placeholder
     end = datetime.now()

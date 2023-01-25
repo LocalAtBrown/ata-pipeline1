@@ -12,11 +12,6 @@ from tests.helpers import create_and_drop_tables
 
 
 @pytest.fixture
-def current_timestamp() -> datetime:
-    return datetime.now()
-
-
-@pytest.fixture
 def single_event(current_timestamp: datetime) -> Event:
     return Event(
         site_name=SiteName.AFRO_LA,
