@@ -15,7 +15,26 @@ ML pipeline for automating the ask.
 ## Usage
 
 You must have a Postgres cluster with tables as defined by [ata-db-models](https://github.com/LocalAtBrown/ata-db-models/).
-TODO more
+
+### Run locally
+
+You can run from the command line/your IDE's runner. From the command line, run:
+`HOST=host PORT=5432 USERNAME=postgres PASSWORD=postgres DB_NAME=postgres PARTNER=partner python ata_pipeline1/main.py`
+
+This will execute a single run of the pipeline, reading from and writing to the database you point to.
+
+### Run via Docker
+
+You can also run it from Docker. Build the image:
+`docker build -t lnl/ata-pipeline1:latest .`
+
+Then execute:
+`docker run -e HOST=host -e PORT=5432 -e USERNAME=postgres -e PASSWORD=postgres -e DB_NAME=postgres -e PARTNER=partner --rm lnl/ata-pipeline1:latest`
+
+Note that you might need to provide other options to the `run` command here to make sure it accesses
+the database in the manner you expect it to. For example, on a Linux machine where it accesses a local
+Postgres database, one needs to include the `--network="host"` option.
+
 
 ## Development
 
