@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from typing import Any
 
 
 class _StrEnum(str, Enum):
@@ -6,11 +7,12 @@ class _StrEnum(str, Enum):
     StrEnum class. Replace with built-in version after upgrading to Python 3.10.
     """
 
-    def _generate_next_value_(name: str, *args, **kwargs):
+    @staticmethod
+    def _generate_next_value_(name: str, *args: Any, **kwargs: Any) -> str:
         return name.lower()
 
     def __str__(self) -> str:
-        return self.value
+        return f"{self.value}"
 
 
 # ---------- EVENT ENUMS ----------

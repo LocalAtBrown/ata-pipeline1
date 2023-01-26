@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Callable
+from typing import Any, Callable
 
 import pandas as pd
 
@@ -68,9 +68,9 @@ class DfpBilingualComponent(SitePageClassifierComponent):
             author_profile=spa_author_profile,
         )
 
-    def perform_common_operation(self, event: pd.Series, page_type: PageType) -> bool:
-        page_type_checker_eng: Callable[[pd.Series], bool] = getattr(self.component_eng, f"is_{page_type}")
-        page_type_checker_spa: Callable[[pd.Series], bool] = getattr(self.component_spa, f"is_{page_type}")
+    def perform_common_operation(self, event: "pd.Series[Any]", page_type: PageType) -> bool:
+        page_type_checker_eng: Callable[["pd.Series[Any]"], bool] = getattr(self.component_eng, f"is_{page_type}")
+        page_type_checker_spa: Callable[["pd.Series[Any]"], bool] = getattr(self.component_spa, f"is_{page_type}")
         return page_type_checker_eng(event) or page_type_checker_spa(event)
 
 

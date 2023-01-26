@@ -1,6 +1,6 @@
 from abc import ABC
 from datetime import datetime
-from typing import List
+from typing import Sequence
 
 import numpy as np
 
@@ -32,7 +32,7 @@ class ChangesBetweenTimePeriods(ABC):
     UI updates).
     """
 
-    def set_components(self, components: List[AppliesDuringTimePeriod]) -> None:
+    def set_components(self, components: Sequence[AppliesDuringTimePeriod]) -> None:
         """
         Sorts the input component list, then sets it as a class attribute.
         """
