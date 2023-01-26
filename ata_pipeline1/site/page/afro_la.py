@@ -37,4 +37,4 @@ COMPONENT_230201 = SitePageClassifierComponent(effective_starting=datetime(2023,
 # When AfroLA rules change, add a new component here (create a new child class of SitePageClassifierComponent
 # as necessary) and add it to the list of components in CLASSIFIER
 
-CLASSIFIER = SitePageClassifier([COMPONENT_ZERO, COMPONENT_221215])
+CLASSIFIER = SitePageClassifier(components=[COMPONENT_ZERO, COMPONENT_221215])
