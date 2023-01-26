@@ -28,4 +28,6 @@ class ComponentZero(SiteNewsletterSignupValidatorComponent):
         return self.has_data(event) and self.has_email_input(event) and self.is_newsletter_form(event)
 
 
-VALIDATOR = SiteNewsletterSignupValidator(components=[ComponentZero(effective_starting=TIMESTAMP_POSIX)])
+COMPONENT_ZERO = ComponentZero(effective_starting=TIMESTAMP_POSIX)
+
+VALIDATOR = SiteNewsletterSignupValidator(components=[COMPONENT_ZERO])

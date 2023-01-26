@@ -2,11 +2,11 @@ from dataclasses import dataclass
 
 from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.site.newsletter import (
-    AfroLaNewsletterSignupValidator,
-    DallasFreePressNewsletterSignupValidator,
-    OpenVallejoNewsletterSignupValidator,
+    NEWSLETTER_SIGNUP_VALIDATOR_AFRO_LA,
+    NEWSLETTER_SIGNUP_VALIDATOR_DALLAS_FREE_PRESS,
+    NEWSLETTER_SIGNUP_VALIDATOR_OPEN_VALLEJO,
+    NEWSLETTER_SIGNUP_VALIDATOR_THE_19TH,
     SiteNewsletterSignupValidator,
-    The19thNewsletterSignupValidator,
 )
 from ata_pipeline1.site.page import (
     PAGE_CLASSIFIER_AFRO_LA,
@@ -31,22 +31,22 @@ class Site:
 # ---------- SITE OBJECTS ----------
 AFRO_LA = Site(
     name=SiteName.AFRO_LA,
-    newsletter_signup_validator=AfroLaNewsletterSignupValidator(),
+    newsletter_signup_validator=NEWSLETTER_SIGNUP_VALIDATOR_AFRO_LA,
     page_type_classifier=PAGE_CLASSIFIER_AFRO_LA,
 )
 DALLAS_FREE_PRESS = Site(
     name=SiteName.DALLAS_FREE_PRESS,
-    newsletter_signup_validator=DallasFreePressNewsletterSignupValidator(),
+    newsletter_signup_validator=NEWSLETTER_SIGNUP_VALIDATOR_DALLAS_FREE_PRESS,
     page_type_classifier=PAGE_CLASSIFIER_DALLAS_FREE_PRESS,
 )
 OPEN_VALLEJO = Site(
     name=SiteName.OPEN_VALLEJO,
-    newsletter_signup_validator=OpenVallejoNewsletterSignupValidator(),
+    newsletter_signup_validator=NEWSLETTER_SIGNUP_VALIDATOR_OPEN_VALLEJO,
     page_type_classifier=PAGE_CLASSIFIER_OPEN_VALLEJO,
 )
 THE_19TH = Site(
     name=SiteName.THE_19TH,
-    newsletter_signup_validator=The19thNewsletterSignupValidator(),
+    newsletter_signup_validator=NEWSLETTER_SIGNUP_VALIDATOR_THE_19TH,
     page_type_classifier=PAGE_CLASSIFIER_THE_19TH,
 )
 

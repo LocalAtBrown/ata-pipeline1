@@ -41,4 +41,6 @@ class ComponentZero(SiteNewsletterSignupValidatorComponent):
         )
 
 
-VALIDATOR = SiteNewsletterSignupValidator(components=[ComponentZero(effective_starting=TIMESTAMP_POSIX)])
+COMPONENT_ZERO = ComponentZero(effective_starting=TIMESTAMP_POSIX)
+
+VALIDATOR = SiteNewsletterSignupValidator(components=[COMPONENT_ZERO])
