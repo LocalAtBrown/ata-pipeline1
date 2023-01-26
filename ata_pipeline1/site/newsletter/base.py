@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -74,7 +75,13 @@ class SiteNewsletterSignupValidatorComponent(NewsletterSignupValidator, AppliesD
     """
     Base class of a newsletter-signup validator component whose rules only
     applies from some particular point in time.
+
+    Feel free to subclass this class and override methods as needed to create
+    components with more complex validation rules.
     """
+
+    def __init__(self, effective_starting: datetime) -> None:
+        self.set_effective_starting(effective_starting)
 
     @staticmethod
     def has_data(event: "pd.Series[Any]") -> bool:
