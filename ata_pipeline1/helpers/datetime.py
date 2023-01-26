@@ -1,9 +1,10 @@
 from abc import ABC
 from datetime import datetime
-from typing import Sequence
+from typing import Sequence, TypeVar
 
 import numpy as np
 
+# ---------- CONSTANTS ----------
 TIMESTAMP_POSIX = datetime(1970, 1, 1)
 
 
@@ -25,6 +26,9 @@ class AppliesDuringTimePeriod(ABC):
         self.effective_starting = effective_starting
 
 
+_AppliesDuringTimePeriod = TypeVar("_AppliesDuringTimePeriod", bound=AppliesDuringTimePeriod)
+
+
 class ChangesBetweenTimePeriods(ABC):
     """
     Mixin to be added to a class (e.g., site newsletter-submission validator) whose
@@ -32,7 +36,7 @@ class ChangesBetweenTimePeriods(ABC):
     UI updates).
     """
 
-    def set_components(self, components: Sequence[AppliesDuringTimePeriod]) -> None:
+    def set_components(self, components: Sequence[_AppliesDuringTimePeriod]) -> None:
         """
         Sorts the input component list, then sets it as a class attribute.
         """
@@ -40,7 +44,7 @@ class ChangesBetweenTimePeriods(ABC):
         # Store POSIX floats of components' effective_starting timestamps
         self.component_timestamps_float = [c.effective_starting.timestamp() for c in self.components]
 
-    def assign_component(self, timestamp: datetime) -> AppliesDuringTimePeriod:
+    def assign_component(self, timestamp: datetime) -> _AppliesDuringTimePeriod:
         """
         Given a timestamp of class `datetime` (or any class that subclasses it, such
         as `pd.Timestamp`), returns the component whose `effective_starting` timestamp
