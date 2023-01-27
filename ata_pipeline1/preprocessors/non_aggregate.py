@@ -225,7 +225,22 @@ class AddFieldSessionEventIndex(Preprocessor):
     (starting with 1).
     """
 
-    pass
+    field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
+    field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
+    field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
+    field_user_session_event_idx: FieldNew = FieldNew.DOMAIN_SESSION_EVENTIDX
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        column_session_pageview_indices = (
+            df.groupby([self.field_user_id, self.field_user_session_idx])[self.field_timestamp]
+            .rank(method="first")
+            .astype(int)
+            .rename(self.field_user_session_event_idx)
+        )
+        return df.join(column_session_pageview_indices)
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        logger.info("Created a new column showing page-event order within a user's session")
 
 
 @dataclass
@@ -290,7 +305,7 @@ class AddFieldsPageType(Preprocessor):
         )
 
     def log_result(self, df_in, df_out) -> None:
-        pass
+        logger.info("Classified event page into one or more page types")
 
 
 # ---------- PIPELINE 0 PREPROCESSORS ----------

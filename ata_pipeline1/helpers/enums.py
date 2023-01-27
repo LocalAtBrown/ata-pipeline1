@@ -105,6 +105,9 @@ class FieldNew(_StrEnum):
     Enum for non-Snowplow fields to be added.
     """
 
+    # [INT] Index of page event within session (starting with 1 as earliest)
+    DOMAIN_SESSION_EVENTIDX = auto()
+
     # [BOOLEAN] Whether device where event was recorded is mobile
     DVCE_IS_MOBILE = auto()
 
