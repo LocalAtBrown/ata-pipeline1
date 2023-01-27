@@ -127,8 +127,8 @@ class SetRowIndex(Preprocessor):
 @dataclass
 class AddFieldEventParentId(Preprocessor):
     """
-    Adds a new field specifying the first page-view event (for a user) that
-    predates all of that user's events within that page in the same session.
+    For a **single partner site**, adds a new field specifying the first page-view event
+    (of a user) that predates all of that user's events within that page in the same session.
     Because the data is NOT perfect, the first page-view event might be missing,
     in which case the parent is whichever event that comes first.
 
@@ -153,7 +153,6 @@ class AddFieldEventParentId(Preprocessor):
               E4  daily-scoop  2023-01-01 00:01:27             A                  1                  /  page_view              E4
               F5  daily-scoop  2023-01-01 00:45:00             A                  2                  /  page_view              F5
               G6  daily-scoop  2023-01-01 00:04:12             B                  1                  /  page_view              G6
-
     """
 
     field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
@@ -162,18 +161,17 @@ class AddFieldEventParentId(Preprocessor):
     field_page_urlpath: FieldSnowplow = FieldSnowplow.PAGE_URLPATH
     field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
     field_event_name: FieldSnowplow = FieldSnowplow.EVENT_NAME
-    field_site_name: FieldNew = FieldNew.SITE_NAME
     field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
     PING_INTERVAL_SECONDS = 10
     PING_INTERVAL_NOISE_SECONDS = 1
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df_event_parent_mapping = df.groupby(
-            [self.field_site_name, self.field_user_id, self.field_user_session_idx, self.field_page_urlpath],
+            [self.field_user_id, self.field_user_session_idx, self.field_page_urlpath],
             group_keys=False,
         ).apply(self._get_parent_events)
 
-        return df.merge(df_event_parent_mapping, on=[self.field_site_name, self.field_event_id])
+        return df.join(df_event_parent_mapping)
 
     def _get_parent_events(self, df_group: pd.DataFrame) -> pd.DataFrame:
         """
@@ -181,19 +179,19 @@ class AddFieldEventParentId(Preprocessor):
         """
         # First, extract only columns we need
         # ROWS SHOULD ALREADY HAVE BEEN SORTED BY ASCENDING TIMESTAMP
-        df_group = df_group[[self.field_site_name, self.field_timestamp, self.field_event_id, self.field_event_name]]
+        df_group = df_group[[self.field_timestamp, self.field_event_name]]
 
         # Pointer: timestamp of previous event
-        timestamp_prev = df_group[self.field_timestamp].iloc[0]
+        timestamp_prev = df_group.iloc[0][self.field_timestamp]
         # Current event ID
-        event_id = df_group[self.field_event_id].iloc[0]
+        event_id = df_group.iloc[0].name
         # Current parent ID
         event_parent_id = event_id
 
-        results = []
+        results = [(event_id, event_parent_id)]
 
         # Iterate over sorted events
-        for site_name, timestamp, event_id, event_name in df_group.values:
+        for event_id, timestamp, event_name in df_group.iloc[1:].itertuples():
             # If current event is a page view or time from previous event exceeds ping interval
             # (with added noise), also indicating a page view, we have a new parent
             if (
@@ -204,16 +202,18 @@ class AddFieldEventParentId(Preprocessor):
                 # Assign current event to current parent
                 event_parent_id = event_id
 
-            # Append site name and event ID in order to accurately join (merge) output
-            # DataFrame with original DataFrame
-            results.append((site_name, event_id, event_parent_id))
+            # Append event ID in order to accurately join output DataFrame with original DataFrame
+            results.append((event_id, event_parent_id))
 
             # Update timestamp of previous as current timestamp before moving on to
             # next event (and next timestamp)
             timestamp_prev = timestamp
 
-        # Return result as mergeable DataFrame
-        return pd.DataFrame(results, columns=[self.field_site_name, self.field_event_id, self.field_event_parent_id])
+        # Return result as joinable DataFrame
+        # return pd.DataFrame(results, columns=[self.field_site_name, self.field_event_id, self.field_event_parent_id])
+        return pd.DataFrame(results, columns=[self.field_event_id, self.field_event_parent_id]).set_index(
+            self.field_event_id
+        )
 
     def log_result(self, df_in, df_out) -> None:
         logger.info(f"Found and added {df_out[self.field_event_parent_id].nunique()} parent events as a new field.")
