@@ -31,7 +31,6 @@ COMPONENT_221215 = SitePageClassifierComponent(
 )
 
 # Post-launch period
-# TODO: Rules
 COMPONENT_230201 = SitePageClassifierComponent(effective_starting=datetime(2023, 2, 1))
 
 # When AfroLA rules change, add a new component here (create a new child class of SitePageClassifierComponent

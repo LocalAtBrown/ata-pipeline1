@@ -30,4 +30,7 @@ class ComponentZero(SiteNewsletterSignupValidatorComponent):
 
 COMPONENT_ZERO = ComponentZero(effective_starting=TIMESTAMP_POSIX)
 
+# When Dallas Free Press rules change, add a new component here (create a new child class of
+# SiteNewsletterSignupValidatorComponent as necessary) and add it to the list of components in VALIDATOR
+
 VALIDATOR = SiteNewsletterSignupValidator(components=[COMPONENT_ZERO])
