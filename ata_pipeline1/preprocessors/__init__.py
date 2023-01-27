@@ -6,5 +6,6 @@ from ata_pipeline1.preprocessors.non_aggregate import (
     AddFieldMaxScrollDepth,
     AddFieldsPageType,
     ConvertFieldTypes,
+    SetRowIndex,
     SortFieldTimestamp,
 )

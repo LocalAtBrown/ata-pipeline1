@@ -9,6 +9,7 @@ import user_agents as ua
 
 from ata_pipeline1.helpers.enums import EventName, FieldNew, FieldSnowplow
 from ata_pipeline1.helpers.logging import logging
+from ata_pipeline1.helpers.typing import Field
 from ata_pipeline1.preprocessors.base import Preprocessor
 from ata_pipeline1.site import (
     SiteName,
@@ -109,6 +110,21 @@ class SortFieldTimestamp(Preprocessor):
 
 
 @dataclass
+class SetRowIndex(Preprocessor):
+    """
+    Set a column (almost always event ID) as DataFrame index.
+    """
+
+    field_index: Field = FieldSnowplow.EVENT_ID
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        return df.set_index(self.field_index, verify_integrity=True)
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        logger.info(f"Set {self.field_index} as DataFrame index")
+
+
+@dataclass
 class AddFieldEventParentId(Preprocessor):
     """
     Adds a new field specifying the first page-view event (for a user) that
@@ -159,36 +175,12 @@ class AddFieldEventParentId(Preprocessor):
 
         return df.merge(df_event_parent_mapping, on=[self.field_site_name, self.field_event_id])
 
-    # def get_parent_events_cleaner_but_twice_as_slow(df_group: pd.DataFrame):
-    #     result = (
-    #         df_group[[FieldSnowplow.DERIVED_TSTAMP, FieldSnowplow.EVENT_ID, FieldSnowplow.EVENT_NAME]]
-    #         .sort_values(FieldSnowplow.DERIVED_TSTAMP)
-    #         .assign(
-    #             seconds_from_previous_event=lambda df: (
-    #                 (df[FieldSnowplow.DERIVED_TSTAMP].astype(int) / 1e9)
-    #                 .rolling(2)
-    #                 .apply(lambda x: 0 if len(x) <= 1 else x.iloc[1] - x.iloc[0])
-    #             )
-    #         )
-    #         .assign(
-    #             event_parent_id=lambda df: df.apply(
-    #                 lambda x: x[FieldSnowplow.EVENT_ID]
-    #                 if x["seconds_from_previous_event"] > PING_INTERVAL_SECONDS + PING_INTERVAL_EPSILON_SECONDS
-    #                 or np.isnan(x["seconds_from_previous_event"])
-    #                 or x[FieldSnowplow.EVENT_NAME] == Event.PAGE_VIEW
-    #                 else np.nan,
-    #                 axis=1,
-    #             ).ffill()
-    #         )
-    #     )
-    #     return result.drop(columns=["seconds_from_previous_event"])
-
     def _get_parent_events(self, df_group: pd.DataFrame) -> pd.DataFrame:
         """
         Determines parent events among events within a pandas GroupBy object.
         """
         # First, extract only columns we need
-        # ROWS SHOULD ALREADY HAVE BEEN SORTED
+        # ROWS SHOULD ALREADY HAVE BEEN SORTED BY ASCENDING TIMESTAMP
         df_group = df_group[[self.field_site_name, self.field_timestamp, self.field_event_id, self.field_event_name]]
 
         # Pointer: timestamp of previous event
@@ -225,6 +217,15 @@ class AddFieldEventParentId(Preprocessor):
 
     def log_result(self, df_in, df_out) -> None:
         logger.info(f"Found and added {df_out[self.field_event_parent_id].nunique()} parent events as a new field.")
+
+
+class AddFieldSessionEventIndex(Preprocessor):
+    """
+    Adds a new field which shows page-view index/order within a single session
+    (starting with 1).
+    """
+
+    pass
 
 
 @dataclass
