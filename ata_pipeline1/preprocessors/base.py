@@ -9,12 +9,13 @@ class Preprocessor(ABC):
     variables needed for the specific transformation.
     """
 
-    def __call__(self, df: pd.DataFrame) -> pd.DataFrame:
+    def __call__(self, df: pd.DataFrame, log_result: bool = True) -> pd.DataFrame:
         """
         Calls an instance of a child class as if it's a (preprocessing) function.
         """
         df_out = self.transform(df)
-        self.log_result(df, df_out)
+        if log_result:
+            self.log_result(df, df_out)
         return df_out
 
     @abstractmethod
