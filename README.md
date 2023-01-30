@@ -14,9 +14,27 @@ ML pipeline for automating the ask.
 
 ## Usage
 
-TODO: Describe how to use your project!
-TODO: Do you need an installation, contributing, community, documentation, or other section here?
-Depends on the project, make sure to add it if it makes sense to do so.
+You must have a Postgres cluster with tables as defined by [ata-db-models](https://github.com/LocalAtBrown/ata-db-models/).
+
+### Run locally
+
+You can run from the command line/your IDE's runner. From the command line, run:
+`HOST=host PORT=5432 USERNAME=postgres PASSWORD=postgres DB_NAME=postgres PARTNER=partner python ata_pipeline1/main.py`
+
+This will execute a single run of the pipeline, reading from and writing to the database you point to.
+
+### Run via Docker
+
+You can also run it from Docker. Build the image:
+`docker build -t lnl/ata-pipeline1:latest .`
+
+Then execute:
+`docker run -e HOST=host -e PORT=5432 -e USERNAME=postgres -e PASSWORD=postgres -e DB_NAME=postgres -e PARTNER=partner --rm lnl/ata-pipeline1:latest`
+
+Note that you might need to provide other options to the `run` command here to make sure it accesses
+the database in the manner you expect it to. For example, on a Linux machine where it accesses a local
+Postgres database, one needs to include the `--network="host"` option.
+
 
 ## Development
 
@@ -56,3 +74,9 @@ To update dependencies in your local environment, make changes to the `pyproject
 
 To manually run rests, simply run `pytest tests` from the root directory of the project. Explore the `pytest` docs (linked above)
 to see more options.
+
+Running the tests requires a postgres instance. An easy way to spin one up is via Docker:
+`docker run --rm --name postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -p 127.0.0.1:5432:5432/tcp postgres`
+
+Notably, the host is `127.0.0.1`, the port is `5432`, the username, password, and db name are all "postgres". You can
+override these with environment variables for `HOST`, `PORT`, `USERNAME`, `PASSWORD`, and `DB_NAME`.
