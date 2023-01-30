@@ -249,8 +249,8 @@ class AddFieldsPageType(Preprocessor):
     For a given site, determines whether or not a page associated with an event is:
     -  Home page
     -  About us/our team
-    -  Newsletter form page
-    -  Donation/membership
+    -  Newsletter form page (must have only newsletter forms and no other content, a.k.a. dedicated newsletter-signup page)
+    -  Donation/membership (must have only donation forms and no other content, a.k.a. dedicated donation/membership page)
     -  Story/article
     -  Section/tag page
     -  Author profile & stories list

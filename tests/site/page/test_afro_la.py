@@ -21,7 +21,8 @@ class TestComponentZero:
         _test_pattern(patterns.newsletter, append_slash(["/subscribe"]))
 
     def test_donation(self, patterns) -> None:
-        _test_pattern(patterns.donation, ["/"])
+        # No dedicated donation page
+        pass
 
     def test_article(self, patterns) -> None:
         _test_pattern(
@@ -61,7 +62,8 @@ class TestComponent221215:
         _test_pattern(patterns.newsletter, append_slash(["/subscribe"]))
 
     def test_donation(self, patterns) -> None:
-        _test_pattern(patterns.donation, append_slash(["/comingsoon"]))
+        # No dedicated donation page
+        pass
 
     def test_article(self, patterns) -> None:
         _test_pattern(
