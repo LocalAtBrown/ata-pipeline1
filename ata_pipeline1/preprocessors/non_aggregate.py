@@ -162,8 +162,8 @@ class AddFieldEventParentId(Preprocessor):
     field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
     field_event_name: FieldSnowplow = FieldSnowplow.EVENT_NAME
     field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
-    PING_INTERVAL_SECONDS = 10
-    PING_INTERVAL_NOISE_SECONDS = 1
+    ping_interval_seconds: int = 10
+    ping_interval_noise_seconds: int = 1
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df_event_parent_mapping = df.groupby(
@@ -197,7 +197,7 @@ class AddFieldEventParentId(Preprocessor):
             if (
                 event_name == EventName.PAGE_VIEW
                 or (timestamp - timestamp_prev).total_seconds()
-                > self.PING_INTERVAL_SECONDS + self.PING_INTERVAL_NOISE_SECONDS
+                > self.ping_interval_seconds + self.ping_interval_noise_seconds
             ):
                 # Assign current event to current parent
                 event_parent_id = event_id
@@ -219,6 +219,7 @@ class AddFieldEventParentId(Preprocessor):
         logger.info(f"Found and added {df_out[self.field_event_parent_id].nunique()} parent events as a new field.")
 
 
+@dataclass
 class AddFieldSessionEventIndex(Preprocessor):
     """
     Adds a new field which shows page-view index/order within a single session
