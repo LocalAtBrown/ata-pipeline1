@@ -472,7 +472,7 @@ test = ["objgraph", "psutil"]
 
 [[package]]
 name = "identify"
-version = "2.5.16"
+version = "2.5.17"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -876,7 +876,7 @@ testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9.16"
-content-hash = "4b9c46e66eb4e26d163356299f37bb2ac34e9a4fd89f1d5dc2a4c1e9171b5e69"
+content-hash = "0b2104e9b2638b7adc5838a4e526abcf8ec2d82d93bb765ab1c608b396af2ffd"
 
 [metadata.files]
 ata-db-models = [
@@ -986,8 +986,8 @@ greenlet = [
     {file = "greenlet-2.0.2.tar.gz", hash = "sha256:e7c8dc13af7db097bed64a051d2dd49e9f0af495c26995c00a9ee842690d34c0"},
 ]
 identify = [
-    {file = "identify-2.5.16-py2.py3-none-any.whl", hash = "sha256:832832a58ecc1b8f33d5e8cb4f7d3db2f5c7fbe922dfee5f958b48fed691501a"},
-    {file = "identify-2.5.16.tar.gz", hash = "sha256:c47acedfe6495b1c603ed7e93469b26e839cab38db4155113f36f718f8b3dc47"},
+    {file = "identify-2.5.17-py2.py3-none-any.whl", hash = "sha256:7d526dd1283555aafcc91539acc061d8f6f59adb0a7bba462735b0a318bff7ed"},
+    {file = "identify-2.5.17.tar.gz", hash = "sha256:93cc61a861052de9d4c541a7acb7e3dcc9c11b398a2144f6e52ae5285f5f4f06"},
 ]
 iniconfig = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},

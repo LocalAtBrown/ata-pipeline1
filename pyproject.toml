@@ -11,7 +11,7 @@ python = "3.9.16"
 pandas = "^1.5.1"
 ata-db-models = "0.0.13"
 sqlalchemy = "^1.4.41"
-sqlmodel = "0.0.8"
+sqlmodel = "^0.0.8"
 
 
 [tool.poetry.dev-dependencies]
@@ -61,3 +61,8 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "ata_pipeline1.helpers.logging"
 implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "sqlalchemy.*"
+follow_imports = "skip"
+follow_imports_for_stubs = true

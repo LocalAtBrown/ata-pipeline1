@@ -29,7 +29,7 @@ def write_prescriptions(df: pd.DataFrame, engine: Engine) -> int:
             result = session.execute(statement)
 
         # Count number of rows/events inserted
-        num_rows_inserted: int = result.rowcount  # type: ignore
+        num_rows_inserted: int = result.rowcount
 
         # Log message
         logger.info(f"Inserted or updated {num_rows_inserted} rows into the {Prescription.__name__} table.")
