@@ -79,6 +79,7 @@ class AddFieldMaxScrollDepth(Preprocessor):
     Adds a new column showing maximum scroll-depth percentage.
     """
 
+    field_dvce_screenheight: FieldSnowplow = FieldSnowplow.DVCE_SCREENHEIGHT
     field_offset_y: FieldSnowplow = FieldSnowplow.PP_YOFFSET_MAX
     field_doc_height: FieldSnowplow = FieldSnowplow.DOC_HEIGHT
     field_max_scroll_depth: FieldNew = FieldNew.SCROLL_DEPTH_MAX
@@ -86,7 +87,16 @@ class AddFieldMaxScrollDepth(Preprocessor):
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
 
-        df[self.field_max_scroll_depth] = (df[self.field_offset_y] / df[self.field_doc_height]).clip(0, 1)
+        df[self.field_max_scroll_depth] = (
+            # Screen height + y-offset = total pixels user's scrolled to
+            ((df[self.field_dvce_screenheight] + df[self.field_offset_y]) / df[self.field_doc_height])
+            # First, try to fillna using (screen height / page height) since we should expect reader to go as far as here without any scrolling
+            .fillna(df[self.field_dvce_screenheight] / df[self.field_doc_height])
+            # Fallback fillna
+            .fillna(0)
+            # Clamp to [0, 1] because we want percentages
+            .clip(0, 1)
+        )
 
         return df
 

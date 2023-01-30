@@ -120,6 +120,9 @@ class FieldNew(_StrEnum):
     # [BOOLEAN] Whether form submission event is of a newsletter form. NULL if event isn't form submission
     FORM_SUBMIT_IS_NEWSLETTER = auto()
 
+    # [BOOLEAN] Whether event leads to newsletter conversion
+    LEAD_TO_NEWSLETTER_CONVERSION = auto()
+
     # [BOOLEAN] Whether page is an "About us" page or something similar
     PAGE_IS_ABOUT_US = auto()
 
@@ -142,7 +145,7 @@ class FieldNew(_StrEnum):
     # list of articles
     PAGE_IS_SECTION = auto()
 
-    # [FLOAT] Maximum scroll depth as percentage
+    # [FLOAT] Maximum scrolling progress as percentage (minimum = screen height / page height, maximum 1)
     SCROLL_DEPTH_MAX = auto()
 
     # [STR] Site partner's name (as a slug corresponding to its S3 bucket)
