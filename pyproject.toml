@@ -16,7 +16,7 @@ sqlmodel = "0.0.8"
 
 [tool.poetry.dev-dependencies]
 mypy = "0.961"
-pre-commit = "2.19.0"
+pre-commit = "^2.19.0"
 pytest = "^7.1.2"
 pandas-stubs = "^1.5.1"
 sqlalchemy-stubs = "^0.4"
