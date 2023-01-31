@@ -173,7 +173,7 @@ class AddFieldEventParentId(Preprocessor):
     field_event_name: FieldSnowplow = FieldSnowplow.EVENT_NAME
     field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
     ping_interval_seconds: int = 10
-    ping_interval_noise_seconds: int = 1
+    ping_interval_noise_seconds: int = 50
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         df_event_parent_mapping = df.groupby(
@@ -317,6 +317,26 @@ class AddFieldsPageType(Preprocessor):
 
     def log_result(self, df_in, df_out) -> None:
         logger.info("Classified event page into one or more page types")
+
+
+@dataclass
+class AddFieldLeadsToNewsletterConversion(Preprocessor):
+    """
+    Adds the target-variable column showing whether (aggregated) page-view
+    event leads to newsletter conversion.
+    """
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # df = df.reset_index().set_index([FieldSnowplow.DOMAIN_USERID, FieldSnowplow.DOMAIN_SESSIONIDX, FieldNew.DOMAIN_SESSION_EVENTIDX], verify_integrity=True)
+        # df = df.apply(self)
+        pass
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        logger.info("Created target-label column")
+
+    # @staticmethod
+    # def _check_lead_to_newsletter_conversion(event: pd.Series, df: pd.DataFrame) -> bool:
+    #     if event[FieldNew.]
 
 
 # ---------- PIPELINE 0 PREPROCESSORS ----------

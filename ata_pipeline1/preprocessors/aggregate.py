@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Dict, Tuple, Union
 
 import pandas as pd
@@ -18,7 +18,21 @@ class AggregatePageActivities(Preprocessor):
     new fields with aggregation/summary statistics (e.g., max scroll depth, dwell time).
     """
 
-    agg_funcs: Dict[Field, Tuple[Field, Union[Callable, str]]]
+    agg_funcs: Dict[Field, Tuple[Field, Union[Callable, str]]] = field(
+        default_factory=lambda: {
+            FieldSnowplow.DERIVED_TSTAMP: (FieldSnowplow.DERIVED_TSTAMP, "first"),
+            FieldSnowplow.DOC_HEIGHT: (FieldSnowplow.DOC_HEIGHT, "mean"),
+            FieldSnowplow.DOMAIN_SESSIONIDX: (FieldSnowplow.DOMAIN_SESSIONIDX, "first"),
+            FieldSnowplow.DOMAIN_USERID: (FieldSnowplow.DOMAIN_USERID, "first"),
+            FieldSnowplow.EVENT_NAME: (FieldSnowplow.EVENT_NAME, "first"),
+            FieldSnowplow.PAGE_URLPATH: (FieldSnowplow.PAGE_URLPATH, "first"),
+            FieldNew.DVCE_IS_MOBILE: (FieldNew.DVCE_IS_MOBILE, lambda x: x.mean() > 0.5),
+            FieldNew.FORM_SUBMIT_IS_NEWSLETTER: (FieldNew.FORM_SUBMIT_IS_NEWSLETTER, lambda x: x.any()),
+            FieldNew.SCROLL_DEPTH_MAX: (FieldNew.SCROLL_DEPTH_MAX, "max"),
+            FieldNew.SITE_NAME: (FieldNew.SITE_NAME, "first"),
+            FieldNew.DWELL_SECS: (FieldSnowplow.DERIVED_TSTAMP, lambda x: (x.max() - x.min()).total_seconds()),
+        }
+    )
     field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
     field_event_parent_id: FieldNew = FieldNew.EVENT_PARENT_ID
 
