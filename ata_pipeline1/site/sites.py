@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Set
 
 from ata_pipeline1.site.domains import (
     DOMAINS_AFRO_LA,
@@ -31,7 +31,7 @@ class Site:
     """
 
     name: SiteName
-    domains: List[str]  # Could be something strictier than str if we reallly need
+    domains: Set[str]  # Could be something strictier than str if we reallly need
     newsletter_signup_validator: SiteNewsletterSignupValidator
     page_type_classifier: SitePageClassifier
 
