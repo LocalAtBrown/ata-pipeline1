@@ -470,20 +470,43 @@ class ReclassifyInternalReferrals(Preprocessor):
 
 
 @dataclass
-class ParseInternalReferrerUrl(Preprocessor):
+class ParseInternalReferrerUrls(Preprocessor):
     """
     For each event, given its referrer URL, returns the path if that URL
     if it's internal.
     """
 
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        pass
+    field_referral_url: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
+    num_internal_urls: int = dataclass_field(default=0, repr=False)
 
-    def log_result(self, df_in=None, df_out=None) -> None:
-        pass
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Make a copy of the original so that it's not affected, but can remove
+        # this if memory is an issue
+        df = df.copy()
+
+        df[self.field_referral_url] = df.apply(self._parse, axis=1)
+
+        return df
+
+    def log_result(self, df_in: pd.DataFrame, df_out=None) -> None:
+        logger.info(
+            f"Extracted path from the referral URL of {self.num_internal_urls} ({self.num_internal_urls / df_in.shape[0]:.1%}) "
+            + "internally referred events"
+        )
 
     def _parse(self, event: pd.Series) -> str:
-        pass
+        referrer_url = event[self.field_referral_url]
+        referrer_medium = event[self.field_referral_medium]
+
+        # If not internal referral, do nothing
+        # This means this preprocessor should be placed after ReclassifyNullReferrals
+        # and ReclassifyInternalReferrals
+        if referrer_medium != EventReferrerMedium.INTERNAL:
+            return referrer_url
+
+        self.num_internal_urls += 1
+        return urlparse(referrer_url).path
 
 
 @dataclass
