@@ -21,7 +21,7 @@ class ComponentZero(SiteNewsletterSignupValidatorComponent):
         """
         Checks if the HTML form is an inline Mailchimp newsletter form.
         """
-        form_data = parse_form_submit_dict(event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
+        form_data = parse_form_submit_dict(event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
         return form_data.form_id == "mc-embedded-subscribe-form"
 
     @staticmethod

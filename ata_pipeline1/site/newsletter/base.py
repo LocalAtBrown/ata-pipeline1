@@ -90,7 +90,7 @@ class SiteNewsletterSignupValidatorComponent(NewsletterSignupValidator, AppliesD
         """
         # Should only be either dict or None because we'll perform this check
         # after the ConvertFieldTypes and ReplaceNaNs preprocessors
-        return event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] is not None
+        return event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] is not None
 
     @staticmethod
     def has_email_input(event: "pd.Series[Any]") -> bool:
@@ -98,7 +98,7 @@ class SiteNewsletterSignupValidatorComponent(NewsletterSignupValidator, AppliesD
         Checks if the HTML form of a form-submission event has an `<input type="email">`
         element, which is the case in all of our partners' newsletter forms.
         """
-        form_data = parse_form_submit_dict(event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
+        form_data = parse_form_submit_dict(event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
         return any([e.node_name == "INPUT" and e.type == "email" for e in form_data.elements])
 
 
@@ -112,5 +112,7 @@ class SiteNewsletterSignupValidator(NewsletterSignupValidator, ChangesBetweenTim
         self.set_components(components)
 
     def validate(self, event: "pd.Series[Any]") -> bool:
-        component: SiteNewsletterSignupValidatorComponent = self.assign_component(event[FieldSnowplow.DERIVED_TSTAMP])
+        component: SiteNewsletterSignupValidatorComponent = self.assign_component(
+            event.at[FieldSnowplow.DERIVED_TSTAMP]
+        )
         return component.validate(event)

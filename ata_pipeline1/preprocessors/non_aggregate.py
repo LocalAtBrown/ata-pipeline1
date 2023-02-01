@@ -54,7 +54,7 @@ class AddFieldFormSubmitIsNewsletter(Preprocessor):
 
     def _is_newsletter_signup(self, event: pd.Series) -> Union[float, bool]:
         # Return np.nan if event is not a form-submission event
-        if event[self.field_event_name] != EventName.SUBMIT_FORM:
+        if event.at[self.field_event_name] != EventName.SUBMIT_FORM:
             return np.nan
 
         return self.site_newsletter_signup_validator.validate(event)
@@ -457,16 +457,10 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     """
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        # df = df.reset_index().set_index([FieldSnowplow.DOMAIN_USERID, FieldSnowplow.DOMAIN_SESSIONIDX, FieldNew.DOMAIN_SESSION_EVENTIDX], verify_integrity=True)
-        # df = df.apply(self)
         pass
 
     def log_result(self, df_in=None, df_out=None) -> None:
         logger.info("Created target-label column")
-
-    # @staticmethod
-    # def _check_lead_to_newsletter_conversion(event: pd.Series, df: pd.DataFrame) -> bool:
-    #     if event[FieldNew.]
 
 
 # ---------- PIPELINE 0 PREPROCESSORS ----------

@@ -129,7 +129,7 @@ class SitePageClassifierComponent(PageClassifier, AppliesDuringTimePeriod):
 
     def perform_common_operation(self, event: "pd.Series[Any]", page_type: PageType) -> bool:
         pattern: re.Pattern[str] = getattr(self.patterns, page_type)
-        urlpath = event[FieldSnowplow.PAGE_URLPATH]
+        urlpath = event.at[FieldSnowplow.PAGE_URLPATH]
         return pattern.fullmatch(urlpath) is not None
 
 
@@ -143,6 +143,6 @@ class SitePageClassifier(PageClassifier, ChangesBetweenTimePeriods):
         self.set_components(components)
 
     def perform_common_operation(self, event: "pd.Series[Any]", page_type: PageType) -> bool:
-        component = self.assign_component(event[FieldSnowplow.DERIVED_TSTAMP])
+        component = self.assign_component(event.at[FieldSnowplow.DERIVED_TSTAMP])
         page_type_checker: Callable[["pd.Series[Any]"], bool] = getattr(component, f"is_{page_type}")
         return page_type_checker(event)

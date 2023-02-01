@@ -21,7 +21,7 @@ class ComponentZero(SiteNewsletterSignupValidatorComponent):
         """
         Checks if the HTML form is a newsletter form via its ID.
         """
-        form_data = parse_form_submit_dict(event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
+        form_data = parse_form_submit_dict(event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
         return "newsletter" in form_data.form_id
 
     def validate(self, event: "pd.Series[Any]") -> bool:
