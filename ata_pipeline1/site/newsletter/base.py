@@ -89,7 +89,7 @@ class SiteNewsletterSignupValidatorComponent(NewsletterSignupValidator, AppliesD
         Checks if a form-submission event actually has form HTML data.
         """
         # Should only be either dict or None because we'll perform this check
-        # after the ConvertFieldTypes and ReplaceNaNs preprocessors
+        # after the ConvertFieldTypes and ReplaceValues([np.nan], [None]) preprocessors
         return event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] is not None
 
     @staticmethod

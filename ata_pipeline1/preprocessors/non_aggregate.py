@@ -1,7 +1,7 @@
 import ast
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import Any, Dict, Set, Union
+from typing import Any, Dict, Optional, Set, Union
 from urllib.parse import urlparse
 
 import numpy as np
@@ -327,6 +327,32 @@ class AddFieldsPageType(Preprocessor):
 
 
 @dataclass
+class ReplaceValues(Preprocessor):
+    """
+    Replaces values(s) across a subset of fields. If this subset of fields
+    is not specified, performs replacement across all fields.
+    """
+
+    replace_what: Any
+    replace_with: Any
+    fields: Optional[Set[Field]] = dataclass_field(default_factory=lambda: {*FieldSnowplow, *FieldNew})
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        df = df.copy()
+
+        fields = df.columns.intersection([*self.fields])
+        df[fields] = df[fields].replace(self.replace_what, self.replace_with)
+
+        return df
+
+    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
+        logger.info(
+            f'Replaced "{self.replace_what}" with "{self.replace_with}" '
+            + f"for {'all fields' if self.fields == {*FieldSnowplow, *FieldNew} else 'fields: {f}'.format(f=', '.join(self.fields))}"
+        )
+
+
+@dataclass
 class ReclassifyNullReferrals(Preprocessor):
     """
     Changes the `refr_medium` field so that the NaN or None values are turned
@@ -344,7 +370,6 @@ class ReclassifyNullReferrals(Preprocessor):
         # this if memory is an issue
         df = df.copy()
 
-        df[self.field_referral_medium].replace([np.nan], [None], inplace=True)
         df[self.field_referral_medium] = df.apply(self._reclassify, axis=1)
         df[self.field_referral_medium] = pd.Categorical(
             df[self.field_referral_medium], categories=[*EventReferrerMedium]
@@ -354,8 +379,8 @@ class ReclassifyNullReferrals(Preprocessor):
 
     def log_result(self, df_in: pd.DataFrame, df_out=None) -> None:
         logger.info(
-            f"Replaced referral medium of {self.num_false_negatives} ({self.num_false_negatives / df_in.shape[0]:.2f}) non-null-medium events to 'no_referrer' and "
-            + f"of {self.num_false_positives} ({self.num_false_positives / df_in.shape[0]:.2f}) of previously null-medium events to 'unknown'"
+            f"Replaced referral medium of {self.num_false_negatives} ({self.num_false_negatives / df_in.shape[0]:.1%}) non-null-medium events to 'no_referrer' and "
+            + f"of {self.num_false_positives} ({self.num_false_positives / df_in.shape[0]:.1%}) of previously null-medium events to 'unknown'"
         )
 
     def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
@@ -405,8 +430,6 @@ class ReclassifyInternalReferrals(Preprocessor):
         # this if memory is an issue
         df = df.copy()
 
-        df[self.field_referral_url].replace([None], [""], inplace=True)
-
         df[self.field_referral_medium] = df.apply(self._reclassify, axis=1)
         df[self.field_referral_medium] = pd.Categorical(
             df[self.field_referral_medium], categories=[*EventReferrerMedium]
@@ -414,9 +437,9 @@ class ReclassifyInternalReferrals(Preprocessor):
 
         return df
 
-    def log_result(self, df_in=None, df_out=None) -> None:
+    def log_result(self, df_in: pd.DataFrame, df_out=None) -> None:
         logger.info(
-            f"Replaced referral medium of {self.num_false_negatives} ({self.num_false_negatives / df_in.shape[0]:.2f}) events to 'internal'."
+            f"Replaced referral medium of {self.num_false_negatives} ({self.num_false_negatives / df_in.shape[0]:.1%}) events to 'internal'."
         )
 
     def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
@@ -436,7 +459,6 @@ class ReclassifyInternalReferrals(Preprocessor):
 
         if referrer_url_matches_domain and referrer_medium != EventReferrerMedium.INTERNAL:
             # Handle false negatives: medium is labeled not internal, but it in fact is
-            print(referrer_url)
             self.num_false_negatives += 1
             return EventReferrerMedium.INTERNAL
         elif not referrer_url_matches_domain and referrer_medium == EventReferrerMedium.INTERNAL:
@@ -449,7 +471,19 @@ class ReclassifyInternalReferrals(Preprocessor):
 
 @dataclass
 class ParseInternalReferrerUrl(Preprocessor):
-    """ """
+    """
+    For each event, given its referrer URL, returns the path if that URL
+    if it's internal.
+    """
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        pass
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        pass
+
+    def _parse(self, event: pd.Series) -> str:
+        pass
 
 
 @dataclass
@@ -638,20 +672,3 @@ class AddFieldSiteName(Preprocessor):
 
     def log_result(self, df_in=None, df_out=None) -> None:
         logger.info(f"Added site name {self.site_name} as a new field")
-
-
-@dataclass
-class ReplaceNaNs(Preprocessor):
-    """
-    Replaces all `np.nan` instances in the DataFrame with a specified alternative.
-    """
-
-    replace_with: Any
-
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        df = df.replace([np.nan], [self.replace_with])
-
-        return df
-
-    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
-        logger.info(f"Replaced all NaNs with {self.replace_with}")
