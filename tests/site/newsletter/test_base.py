@@ -51,7 +51,7 @@ class TestSiteNewsletterSignupValidatorComponent:
 
     def test_has_data_false(self, event) -> None:
         event = event.copy()
-        event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] = None
+        event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] = None
         assert SiteNewsletterSignupValidatorComponent.has_data(event) is False
 
     def test_has_email_input_true(self, event) -> None:
@@ -59,7 +59,7 @@ class TestSiteNewsletterSignupValidatorComponent:
 
     def test_has_email_input_false(self, event, dummy_email) -> None:
         event = event.copy()
-        event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] = {
+        event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] = {
             "formId": "",
             "formClasses": [],
             "elements": [

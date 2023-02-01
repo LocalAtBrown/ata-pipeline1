@@ -51,5 +51,5 @@ class TestComponentZero:
 
     def test_is_in_newsletter_page_false(self, event) -> None:
         event = event.copy()
-        event[FieldSnowplow.PAGE_URLPATH] = "/"
+        event.at[FieldSnowplow.PAGE_URLPATH] = "/"
         assert COMPONENT_ZERO.is_in_newsletter_page(event) is False

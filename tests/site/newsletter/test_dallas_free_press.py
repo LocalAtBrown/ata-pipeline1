@@ -51,7 +51,7 @@ class TestComponentZero:
 
     def test_is_newsletter_inline_form_false(self, event, dummy_email) -> None:
         event = event.copy()
-        event[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] = {
+        event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT] = {
             "formId": "dummy-id",  # must be "mc-embedded-subscribe-form"
             "formClasses": [],
             "elements": [
