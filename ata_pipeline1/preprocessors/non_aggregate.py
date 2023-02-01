@@ -359,8 +359,9 @@ class ReclassifyNullReferrals(Preprocessor):
         )
 
     def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
-        event = event.copy()
-
+        """
+        Row-level main reclassification logic.
+        """
         referrer_medium = event.at[self.field_referral_medium]
         referrer_url = urlparse(event.at[self.field_referral_url])
 
@@ -419,7 +420,9 @@ class ReclassifyInternalReferrals(Preprocessor):
         )
 
     def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
-        event = event.copy()
+        """
+        Row-level main reclassification logic.
+        """
         referrer_medium: EventReferrerMedium = event.at[self.field_referral_medium]
 
         # This means this preprocessor should be placed after ReclassifyNullReferrals
