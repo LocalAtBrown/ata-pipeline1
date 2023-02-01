@@ -1,3 +1,4 @@
+from ata_pipeline1.site.domains import SiteDomain
 from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.site.newsletter import SiteNewsletterSignupValidator
 from ata_pipeline1.site.page import SitePageClassifier

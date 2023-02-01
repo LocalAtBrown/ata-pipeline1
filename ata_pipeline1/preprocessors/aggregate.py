@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from typing import Callable, Dict, Tuple, Union
 
 import pandas as pd
@@ -18,7 +19,7 @@ class AggregatePageActivities(Preprocessor):
     new fields with aggregation/summary statistics (e.g., max scroll depth, dwell time).
     """
 
-    agg_funcs: Dict[Field, Tuple[Field, Union[Callable, str]]] = field(
+    agg_funcs: Dict[Field, Tuple[Field, Union[Callable, str]]] = dataclass_field(
         default_factory=lambda: {
             FieldSnowplow.DERIVED_TSTAMP: (FieldSnowplow.DERIVED_TSTAMP, "first"),
             FieldSnowplow.DOC_HEIGHT: (FieldSnowplow.DOC_HEIGHT, "mean"),

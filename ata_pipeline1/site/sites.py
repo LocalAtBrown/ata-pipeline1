@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from typing import Set
+from typing import List
 
 from ata_pipeline1.site.domains import (
     DOMAINS_AFRO_LA,
     DOMAINS_DALLAS_FREE_PRESS,
     DOMAINS_OPEN_VALLJO,
     DOMAINS_THE_19TH,
+    SiteDomain,
 )
 from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.site.newsletter import (
@@ -31,7 +32,7 @@ class Site:
     """
 
     name: SiteName
-    domains: Set[str]  # Could be something strictier than str if we reallly need
+    domains: List[SiteDomain]
     newsletter_signup_validator: SiteNewsletterSignupValidator
     page_type_classifier: SitePageClassifier
 

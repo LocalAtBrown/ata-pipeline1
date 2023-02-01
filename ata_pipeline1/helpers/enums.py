@@ -28,6 +28,21 @@ class EventName(_StrEnum):
     SUBMIT_FORM = auto()
 
 
+class EventReferrerMedium(_StrEnum):
+    """
+    Possible values for the Snowplow refr_medium field, except for NO_REFERRER
+    which is our replacement of None.
+    """
+
+    NO_REFERRER = auto()  # Custom replacement of None or NULL
+    EMAIL = auto()
+    INTERNAL = auto()
+    PAID = auto()
+    SEARCH = auto()
+    SOCIAL = auto()
+    UNKNOWN = auto()
+
+
 # ---------- DATA FIELD ENUMS ----------
 class FieldSnowplow(_StrEnum):
     """
@@ -152,7 +167,7 @@ class FieldNew(_StrEnum):
     SITE_NAME = auto()
 
 
-# ---------- PAGE TYPES ----------
+# ---------- PAGE ENUMS ----------
 class PageType(_StrEnum):
     HOME = auto()
     ABOUT_US = auto()

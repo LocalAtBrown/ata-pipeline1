@@ -7,6 +7,8 @@ from ata_pipeline1.preprocessors.non_aggregate import (
     AddFieldSessionEventIndex,
     AddFieldsPageType,
     ConvertFieldTypes,
+    ReclassifyInternalReferrals,
+    ReclassifyNullReferrals,
     SetRowIndex,
     SortFieldTimestamp,
 )

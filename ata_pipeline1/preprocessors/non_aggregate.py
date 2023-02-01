@@ -2,16 +2,23 @@ import ast
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from typing import Any, Dict, Set, Union
+from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
 import user_agents as ua
 
-from ata_pipeline1.helpers.enums import EventName, FieldNew, FieldSnowplow
+from ata_pipeline1.helpers.enums import (
+    EventName,
+    EventReferrerMedium,
+    FieldNew,
+    FieldSnowplow,
+)
 from ata_pipeline1.helpers.logging import logging
 from ata_pipeline1.helpers.typing import Field
 from ata_pipeline1.preprocessors.base import Preprocessor
 from ata_pipeline1.site import (
+    SiteDomain,
     SiteName,
     SiteNewsletterSignupValidator,
     SitePageClassifier,
@@ -317,6 +324,121 @@ class AddFieldsPageType(Preprocessor):
 
     def log_result(self, df_in, df_out) -> None:
         logger.info("Classified event page into one or more page types")
+
+
+@dataclass
+class ReclassifyNullReferrals(Preprocessor):
+    """
+    TODO docs
+    """
+
+    site_domains: Set[SiteDomain]
+    field_referral_url: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
+    num_false_positives: int = dataclass_field(default=0, repr=False)
+    num_false_negatives: int = dataclass_field(default=0, repr=False)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Make a copy of the original so that it's not affected, but can remove
+        # this if memory is an issue
+        df = df.copy()
+
+        df[self.field_referral_medium].replace([np.nan], [None], inplace=True)
+        df[self.field_referral_medium] = df.apply(self._reclassify, axis=1)
+
+        return df
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        logger.info(
+            f"Replaced referral medium of {self.num_false_negatives} events to 'no_referrer' and "
+            + f"of {self.num_false_positives} of previously null-medium events to 'unknown'"
+        )
+        pass
+
+    def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
+        event = event.copy()
+
+        referrer_medium = event.at[self.field_referral_medium]
+        referrer_url = urlparse(event.at[self.field_referral_url])
+
+        referrer_medium_is_truthy = bool(referrer_medium)
+        referrer_url_is_valid = len(referrer_url.netloc) > 0  # There's probably a better way than checking length
+
+        if not referrer_url_is_valid and not referrer_medium_is_truthy:
+            # True positive: Medium is labeled NULL, and it in fact is NULL
+            # Just need to convert to our custom enum value for NULL
+            return EventReferrerMedium.NO_REFERRER
+        elif not referrer_url_is_valid and referrer_medium_is_truthy:
+            # False negative: Medium is labeled not NULL, but it in fact is NULL
+            self.num_false_negatives += 1
+            return EventReferrerMedium.NO_REFERRER
+        elif referrer_url_is_valid and not referrer_medium_is_truthy:
+            # False positive: Medium is labeled NULL, but it in fact is not NULL
+            # There's probably a better way to handle false positives than assigning unknown,
+            # but if Snowplow does its job false positives are virtually nonexistant
+            self.num_false_positives += 1
+            return EventReferrerMedium.UNKNOWN
+        else:
+            return referrer_medium
+
+
+@dataclass
+class ReclassifyInternalReferrals(Preprocessor):
+    """
+    TODO docs
+    """
+
+    site_domains: Set[SiteDomain]
+    field_referral_url: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
+    num_false_positives: int = dataclass_field(default=0, repr=False)
+    num_false_negatives: int = dataclass_field(default=0, repr=False)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Make a copy of the original so that it's not affected, but can remove
+        # this if memory is an issue
+        df = df.copy()
+
+        df[self.field_referral_medium] = df.apply(self._reclassify, axis=1)
+
+        return df
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        logger.info(
+            f"Replaced referral medium of {self.num_false_negatives} events to 'internal' and "
+            + f"of {self.num_false_positives} of previously internal events to 'unknown'"
+        )
+
+    def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
+        event = event.copy()
+        referrer_medium: EventReferrerMedium = event.at[self.field_referral_medium]
+
+        # This means this preprocessor should be placed after ReclassifyNullReferrals
+        if referrer_medium == EventReferrerMedium.NO_REFERRER:
+            return referrer_medium
+
+        referrer_url = urlparse(event.at[self.field_referral_url])
+        referrer_url_matches_domain = any(
+            [domain.pattern.search(referrer_url.netloc) is not None for domain in self.site_domains]
+        )
+
+        if referrer_url_matches_domain and referrer_medium != EventReferrerMedium.INTERNAL:
+            # Handle false negatives: medium is labeled not internal, but it in fact is
+            self.num_false_negatives += 1
+            return EventReferrerMedium.INTERNAL
+        elif not referrer_url_matches_domain and referrer_medium == EventReferrerMedium.INTERNAL:
+            # False positive: medium is labeled internal, but it in fact is not
+            # There's probably a better way to handle false positives than assigning unknown,
+            # but if Snowplow does its job false positives are virtually nonexistant
+            self.num_false_positives += 1
+            return EventReferrerMedium.UNKNOWN
+        else:
+            return referrer_medium
+
+
+@dataclass
+class ParseInternalReferrerUrl(Preprocessor):
+    """ """
 
 
 @dataclass
