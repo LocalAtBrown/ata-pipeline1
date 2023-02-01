@@ -8,7 +8,8 @@ class SiteDomain:
     pattern: re.Pattern[str] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self.pattern = re.compile(self.name)
+        # re.escape escapes regex meta-characters like the period (".") in the URL
+        self.pattern = re.compile(re.escape(self.name))
 
 
 DOMAINS_AFRO_LA = [SiteDomain("afrolanews.org"), SiteDomain("afrolanews.beehiiv.com")]
