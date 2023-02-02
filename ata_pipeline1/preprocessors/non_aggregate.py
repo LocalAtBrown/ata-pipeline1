@@ -1,7 +1,7 @@
 import ast
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import Any, Dict, Optional, Set, Union
+from typing import Any, Dict, Optional, Set, Tuple, Union
 from urllib.parse import urlparse
 
 import numpy as np
@@ -514,10 +514,138 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     """
     Adds the target-variable column showing whether (aggregated) page-view
     event leads to newsletter conversion.
+
+    Why? Because, for example, Dallas Free Press only has the actual newsletter
+    form in its dedicated newsletter page. In other pages, such as articles,
+    its shows an ask with a hyperlink to said newsletter page. If we use the
+    `form_submit_is_newsletter` column as the target variable, it will only
+    be True for events happening in said newsletter page, which is trivial.
+    What we really want is to label the page (e.g. article) that _leads_to the
+    newsletter-page view where the newsletter form submission happens. Other sites
+    may have pages that aren't solely dedicated to newsletter sign-up (in which
+    case we can just use `form_submit_is_newsletter`), but they also have
+    dedicated newsletter pages.
+
+    To identify the page-view event that leads to newsletter page view where the
+    newsletter-form submission happens, we primarily look at the latter's
+    referral URL.
+
+    The logic is as follows:
+    - First, query for page-view events where `form_submit_is_newsletter` is True
+    - For each of these events,
+        - Identify the page-view event that leads to it:
+            - If the event happens in a non-newsletter-dedicated page, i.e.,
+            `page_is_newsletter` is False, _make it the leading event_
+            - Else, i.e., `page_is_newsletter` is True, try to identify the
+            leading event:
+                - If the original event's referral medium is NOT internal, traverse
+                through precending events (a.k.a. predecessor) IN THE SAME SESSION,
+                starting from most recent. For every predecessor:
+                    - If predecessor's page is not a newsletter page,
+                    _make predecessor leading_
+                    - Else, continue to next predecessor
+                - Else, i.e., the original event's referral medium is internal,
+                    - Initialize some memo variable X as None
+                    - Traverse through precending events (a.k.a. predecessor) IN THE SAME
+                    AND PREVIOUS SESSIONS, starting from most recent. For every predecessor:
+                        - If (predecessor's page is not a newsletter page) and (predecessor
+                        is in the same session as original) and (X is not None),
+                            - Assign predecessor to X so that it's the most recent event
+                            happening in a non-newsletter-dedicated page and our default leading
+                            event (more below).
+                        - If predecessor's page_urlpath matches (with total or enough
+                        confidence) original's referral URL path, _make predecessor leading_.
+                        - Else:
+                            - If predecessor is the first event of its session:
+                                - If predecessor's referral medium is NOT internal, _make X
+                                leading_.
+                            - Else, continue to next predecessor
+        - Mark said identified event's target column as True
+
+    (Short-circuit and return None if indexing fails at any point.)
     """
 
+    field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
+    field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
+    field_referrer: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
+    field_user_session_event_idx: FieldNew = FieldNew.DOMAIN_SESSION_EVENTIDX
+    field_form_submit_is_newsletter: FieldNew = FieldNew.FORM_SUBMIT_IS_NEWSLETTER
+    field_page_is_newsletter: FieldNew = FieldNew.PAGE_IS_NEWSLETTER
+    field_leads_to_newsletter_conversion: FieldNew = FieldNew.LEAD_TO_NEWSLETTER_CONVERSION
+
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Change from event-ID index to user-session-event MultiIndex
+        # Also sort those indices to make it easy to traverse
+        # from most recent to oldest (we really want ascending=False, but doing
+        # this in sort_index right now returns a PerformanceWarning, which
+        # seems to be an unresolved bug that's related to https://github.com/pandas-dev/pandas/issues/17931)
+        df = (
+            df.reset_index()
+            .set_index(
+                [self.field_user_id, self.field_user_session_idx, self.field_user_session_event_idx],
+                verify_integrity=True,
+            )
+            .sort_index()
+        )
+
+        # Create new target-label field, first set everything to False
+        df[self.field_leads_to_newsletter_conversion] = False
+
+        # Get a list of indices of events where a newsletter-form submission happens
+        indices_newsletter_submission = df.query(self.field_form_submit_is_newsletter).index
+
+        # Iterate through indices
+        for event_index in indices_newsletter_submission:
+            event_leading_index = self._identify_leading_event(df, event_index)
+            if event_leading_index is not None:
+                df.at[event_leading_index, self.field_leads_to_newsletter_conversion] = True
+
+        return df
+
+    def _identify_leading_event(
+        self, df: pd.DataFrame, event_index: Tuple[str, int, int]
+    ) -> Optional[Tuple[str, int, int]]:
+        """
+        Main leading-event identification logic. Returns a
+        (domain_userid, domain_sessionidx, domain_session_event) tuple.
+        """
+        # If the event happens in a non-newsletter-dedicated page, make it the leading event
+        # and move on to next index
+        # pandas store boolean values not as Python bool but of numpy.bool_.
+        # (see: https://stackoverflow.com/questions/46002513/numpy-any-returns-true-but-is-true-comparison-fails)
+        if df.at[event_index, self.field_page_is_newsletter] is np.False_:
+            return event_index
+
+        if df.at[event_index, self.field_referral_medium] == EventReferrerMedium.INTERNAL:
+            return self._identify_leading_event_internally_referred(df, event_index)
+        else:
+            return self._identify_leading_event_externally_referred(df, event_index)
+
+    def _identify_leading_event_internally_referred(
+        self, df: pd.DataFrame, event_index: Tuple[str, int, int]
+    ) -> Optional[Tuple[str, int, int]]:
         pass
+
+    def _identify_leading_event_externally_referred(
+        self, df: pd.DataFrame, event_index: Tuple[str, int, int]
+    ) -> Optional[Tuple[str, int, int]]:
+        # Get individual index components
+        user_id, original_user_session_idx, original_user_session_event_idx = event_index
+
+        # Filter & reverse user-session-event indices to those before the original event
+        # e.g. if original indices are [1, 2, 3, 4, 5] and event index is 4,
+        # return [3, 2, 1]
+        predecessor_user_session_event_indices = range(original_user_session_event_idx - 1, 0, -1)
+
+        # Index should already have been sorted in ascending order
+        for i in predecessor_user_session_event_indices:
+            # Looking only at events from the same user and session
+            predecessor_index = (user_id, original_user_session_idx, i)
+
+            # If predecessor's page is not newsletter-dedicated-page, make it the leading event
+            if df.at[predecessor_index, self.field_page_is_newsletter] is np.False_:
+                return predecessor_index
 
     def log_result(self, df_in=None, df_out=None) -> None:
         logger.info("Created target-label column")

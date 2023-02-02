@@ -3,6 +3,7 @@ from ata_pipeline1.preprocessors.non_aggregate import (
     AddFieldDeviceIsMobile,
     AddFieldEventParentId,
     AddFieldFormSubmitIsNewsletter,
+    AddFieldLeadsToNewsletterConversion,
     AddFieldMaxScrollDepth,
     AddFieldSessionEventIndex,
     AddFieldsPageType,
