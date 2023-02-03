@@ -1,8 +1,9 @@
 import pytest
 
+from ata_pipeline1.helpers.url import bulk_append_slash
 from ata_pipeline1.site.page.base import Patterns
 from ata_pipeline1.site.page.open_vallejo import COMPONENT_ZERO
-from tests.site.page.helpers import _test_pattern, append_slash
+from tests.site.page.helpers import _test_pattern
 
 
 @pytest.mark.unit
@@ -12,12 +13,12 @@ class TestComponentZero:
         return COMPONENT_ZERO.patterns
 
     def test_home(self, patterns) -> None:
-        _test_pattern(patterns.home, append_slash(["/", "/page/2"]))
+        _test_pattern(patterns.home, bulk_append_slash(["/", "/page/2"]))
 
     def test_about_us(self, patterns) -> None:
         _test_pattern(
             patterns.about_us,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/about-us",
                     "/awards",
@@ -33,17 +34,17 @@ class TestComponentZero:
         )
 
     def test_newsletter(self, patterns) -> None:
-        _test_pattern(patterns.newsletter, append_slash(["/newsletter"]))
+        _test_pattern(patterns.newsletter, bulk_append_slash(["/newsletter"]))
 
     def test_donation(self, patterns) -> None:
-        _test_pattern(patterns.donation, append_slash(["/donate"]))
+        _test_pattern(patterns.donation, bulk_append_slash(["/donate"]))
 
     def test_article(self, patterns) -> None:
         # Only test against a representative sample of the articles since it'd be
         # impractical to test against all existing & future articles.
         _test_pattern(
             patterns.article,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/2020/12/25/blue-life",
                     "/2022/09/21/vallejo-patrol-staffing-drops-below-1975-levels",
@@ -56,7 +57,7 @@ class TestComponentZero:
         # impractical to test against all existing & future sections.
         _test_pattern(
             patterns.section,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/category/analysis",
                     "/category/city-hall/city-manager",
@@ -73,7 +74,7 @@ class TestComponentZero:
         # impractical to test against all existing & future authors.
         _test_pattern(
             patterns.author_profile,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/author/laurence-du-sault/",
                     "/author/geoffrey-king/page/2/",

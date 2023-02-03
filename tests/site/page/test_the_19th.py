@@ -1,8 +1,9 @@
 import pytest
 
+from ata_pipeline1.helpers.url import bulk_append_slash
 from ata_pipeline1.site.page.base import Patterns
 from ata_pipeline1.site.page.the_19th import COMPONENT_ZERO
-from tests.site.page.helpers import _test_pattern, append_slash
+from tests.site.page.helpers import _test_pattern
 
 
 @pytest.mark.unit
@@ -12,26 +13,26 @@ class TestComponentZero:
         return COMPONENT_ZERO.patterns
 
     def test_home(self, patterns) -> None:
-        _test_pattern(patterns.home, append_slash(["/", "/page/2"]))
+        _test_pattern(patterns.home, bulk_append_slash(["/", "/page/2"]))
 
     def test_about_us(self, patterns) -> None:
-        _test_pattern(patterns.about_us, append_slash(["/about", "/community-guidelines", "/team"]))
+        _test_pattern(patterns.about_us, bulk_append_slash(["/about", "/community-guidelines", "/team"]))
 
     def test_newsletter(self, patterns) -> None:
         _test_pattern(
             patterns.newsletter,
-            append_slash(["/newsletters", "/newsletters/daily", "/newsletters/events", "/newsletters/weekly"]),
+            bulk_append_slash(["/newsletters", "/newsletters/daily", "/newsletters/events", "/newsletters/weekly"]),
         )
 
     def test_donation(self, patterns) -> None:
-        _test_pattern(patterns.donation, append_slash(["/membership", "/major-gifts"]))
+        _test_pattern(patterns.donation, bulk_append_slash(["/membership", "/major-gifts"]))
 
     def test_article(self, patterns) -> None:
         # Only test against a representative sample of the articles since it'd be
         # impractical to test against all existing & future articles.
         _test_pattern(
             patterns.article,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/2020/02/for-klobuchar-and-warren-the-2020-primary-is-an-endurance-race",
                     "/2022/05/election-2022-women-governor-lieutenant-governor",
@@ -46,7 +47,7 @@ class TestComponentZero:
         # impractical to test against all existing & future sections.
         _test_pattern(
             patterns.section,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/archive",
                     "/tag/abortion",
@@ -65,7 +66,7 @@ class TestComponentZero:
         # impractical to test against all existing & future authors.
         _test_pattern(
             patterns.author_profile,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/author/abby-johnston",
                     "/author/ann-givens-the-trace-staff-writer",

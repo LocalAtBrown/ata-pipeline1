@@ -1,8 +1,9 @@
 import pytest
 
+from ata_pipeline1.helpers.url import bulk_append_slash
 from ata_pipeline1.site.page.afro_la import COMPONENT_221215, COMPONENT_ZERO
 from ata_pipeline1.site.page.base import Patterns
-from tests.site.page.helpers import _test_pattern, append_slash
+from tests.site.page.helpers import _test_pattern
 
 
 @pytest.mark.unit
@@ -18,7 +19,7 @@ class TestComponentZero:
         _test_pattern(patterns.about_us, ["/"])
 
     def test_newsletter(self, patterns) -> None:
-        _test_pattern(patterns.newsletter, append_slash(["/subscribe"]))
+        _test_pattern(patterns.newsletter, bulk_append_slash(["/subscribe"]))
 
     def test_donation(self, patterns) -> None:
         # No dedicated donation page
@@ -27,7 +28,7 @@ class TestComponentZero:
     def test_article(self, patterns) -> None:
         _test_pattern(
             patterns.article,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/news/black-women-photographers",
                     "/news/eso-won-closing",
@@ -39,7 +40,7 @@ class TestComponentZero:
         )
 
     def test_section(self, patterns) -> None:
-        _test_pattern(patterns.section, append_slash(["/news"]))
+        _test_pattern(patterns.section, bulk_append_slash(["/news"]))
 
     def test_author_profile(self, patterns) -> None:
         # Author profile pages doesn't exist yet
@@ -53,13 +54,13 @@ class TestComponent221215:
         return COMPONENT_221215.patterns
 
     def test_home(self, patterns) -> None:
-        _test_pattern(patterns.home, append_slash(["/comingsoon"]))
+        _test_pattern(patterns.home, bulk_append_slash(["/comingsoon"]))
 
     def test_about_us(self, patterns) -> None:
-        _test_pattern(patterns.about_us, append_slash(["/comingsoon"]))
+        _test_pattern(patterns.about_us, bulk_append_slash(["/comingsoon"]))
 
     def test_newsletter(self, patterns) -> None:
-        _test_pattern(patterns.newsletter, append_slash(["/subscribe"]))
+        _test_pattern(patterns.newsletter, bulk_append_slash(["/subscribe"]))
 
     def test_donation(self, patterns) -> None:
         # No dedicated donation page
@@ -68,7 +69,7 @@ class TestComponent221215:
     def test_article(self, patterns) -> None:
         _test_pattern(
             patterns.article,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/comingsoon/news/black-women-photographers",
                     "/comingsoon/news/eso-won-closing",
@@ -80,7 +81,7 @@ class TestComponent221215:
         )
 
     def test_section(self, patterns) -> None:
-        _test_pattern(patterns.section, append_slash(["/comingsoon/news"]))
+        _test_pattern(patterns.section, bulk_append_slash(["/comingsoon/news"]))
 
     def test_author_profile(self, patterns) -> None:
         # Author profile pages doesn't exist yet

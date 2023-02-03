@@ -1,8 +1,9 @@
 import pytest
 
+from ata_pipeline1.helpers.url import bulk_append_slash
 from ata_pipeline1.site.page.base import Patterns
 from ata_pipeline1.site.page.dallas_free_press import COMPONENT_ZERO
-from tests.site.page.helpers import _test_pattern, append_slash
+from tests.site.page.helpers import _test_pattern
 
 
 @pytest.mark.unit
@@ -16,15 +17,15 @@ class TestComponentZero:
         return COMPONENT_ZERO.component_spa.patterns
 
     def test_eng_home(self, patterns_eng) -> None:
-        _test_pattern(patterns_eng.home, append_slash(["/", "/page/2"]))
+        _test_pattern(patterns_eng.home, bulk_append_slash(["/", "/page/2"]))
 
     def test_spa_home(self, patterns_spa) -> None:
-        _test_pattern(patterns_spa.home, append_slash(["/es", "/es/page/2"]))
+        _test_pattern(patterns_spa.home, bulk_append_slash(["/es", "/es/page/2"]))
 
     def test_eng_about_us(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.about_us,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/about-us",
                     "/dallas-free-press-editorial-content",
@@ -34,12 +35,14 @@ class TestComponentZero:
         )
 
     def test_spa_about_us(self, patterns_spa) -> None:
-        _test_pattern(patterns_spa.about_us, append_slash(["/es/sobre-nosotros", "/es/exponiendo-nuestra-parcialidad"]))
+        _test_pattern(
+            patterns_spa.about_us, bulk_append_slash(["/es/sobre-nosotros", "/es/exponiendo-nuestra-parcialidad"])
+        )
 
     def test_eng_newsletter(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.newsletter,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/text-and-email-notifications",
                     "/how-do-you-like-your-news",
@@ -55,7 +58,7 @@ class TestComponentZero:
     def test_eng_donation(self, patterns_eng) -> None:
         _test_pattern(
             patterns_eng.donation,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/support-dfp",
                 ]
@@ -63,14 +66,14 @@ class TestComponentZero:
         )
 
     def test_spa_donation(self, patterns_spa) -> None:
-        _test_pattern(patterns_spa.donation, append_slash(["/es/apoyanos"]))
+        _test_pattern(patterns_spa.donation, bulk_append_slash(["/es/apoyanos"]))
 
     def test_eng_article(self, patterns_eng) -> None:
         # Only test against a representative sample of the articles since it'd be
         # impractical to test against all existing & future articles.
         _test_pattern(
             patterns_eng.article,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/dallas-news/what-dallas-isd-parents-are-and-arent-being-told-about-map-tests",
                     "/project/dallas-forgot/freedmans-town-cemetery-community-darrell-school-dallas-history-erasure",
@@ -90,7 +93,7 @@ class TestComponentZero:
         # impractical to test against all existing & future articles.
         _test_pattern(
             patterns_spa.article,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/es/noticias-de-dallas/la-celebracion-del-16-de-junio-del-centro-comunitario-de-mlk-es-diferente-pero-impactante",
                     "/es/south-dallas/adonde-vas-el-sabado-por-la-manana-como-un-plan-de-zonificacion-podria-dar-paso-a-nuevos-negocios-en-el-sur-de-dallas",
@@ -105,7 +108,7 @@ class TestComponentZero:
         # impractical to test against all existing & future sections.
         _test_pattern(
             patterns_eng.section,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/dallas-forgot",
                     "/dallas-news",
@@ -125,7 +128,7 @@ class TestComponentZero:
         # impractical to test against all existing & future sections.
         _test_pattern(
             patterns_spa.section,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/es/dallas-forgot",
                     "/es/noticias-de-dallas",
@@ -145,7 +148,7 @@ class TestComponentZero:
         # impractical to test against all existing & future authors.
         _test_pattern(
             patterns_eng.author_profile,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/author/fatima-syed",
                     "/author/christine-hughes-babb",
@@ -159,7 +162,7 @@ class TestComponentZero:
         # impractical to test against all existing & future authors.
         _test_pattern(
             patterns_spa.author_profile,
-            append_slash(
+            bulk_append_slash(
                 [
                     "/es/author/fatima-syed",
                     "/es/author/christina-hughes-babb",
