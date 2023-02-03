@@ -573,6 +573,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     field_form_submit_is_newsletter: FieldNew = FieldNew.FORM_SUBMIT_IS_NEWSLETTER
     field_page_is_newsletter: FieldNew = FieldNew.PAGE_IS_NEWSLETTER
     field_leads_to_newsletter_conversion: FieldNew = FieldNew.LEAD_TO_NEWSLETTER_CONVERSION
+    num_leading_events: int = dataclass_field(default=0, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         # Change from event-ID index to user-session-event MultiIndex
@@ -600,6 +601,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
             event_leading_index = self._identify_leading_event(df, event_index)
             if event_leading_index is not None:
                 df.at[event_leading_index, self.field_leads_to_newsletter_conversion] = True
+                self.num_leading_events += 1
 
         return df
 
@@ -704,8 +706,12 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         # perhaps some similarity metric such as Levenshtein or Jaro-Winkler?
         return append_slash(urlpath_a) == append_slash(urlpath_b)
 
-    def log_result(self, df_in=None, df_out=None) -> None:
-        logger.info("Created target-label column")
+    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
+        logger.info(
+            f"Identified {self.num_leading_events} events as leading to a newsletter subscription. "
+            + f"They account for {self.num_leading_events / df_out.shape[0]:.1%} of all aggregated page events "
+            + f"and {self.num_leading_events / df_in[self.field_form_submit_is_newsletter].sum():.1%} of aggregated page events where a newsletter form submission happens"
+        )
 
 
 # ---------- PIPELINE 0 PREPROCESSORS ----------
