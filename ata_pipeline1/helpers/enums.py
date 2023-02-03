@@ -138,6 +138,9 @@ class FieldNew(_StrEnum):
     # [BOOLEAN] Whether event leads to newsletter conversion
     LEAD_TO_NEWSLETTER_CONVERSION = auto()
 
+    # [STR] ID of leading event if an event has a newsletter submission
+    NEWSLETTER_LEADING_EVENT = auto()
+
     # [BOOLEAN] Whether page is an "About us" page or something similar
     PAGE_IS_ABOUT_US = auto()
 

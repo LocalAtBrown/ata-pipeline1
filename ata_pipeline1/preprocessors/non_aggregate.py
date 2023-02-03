@@ -1,7 +1,7 @@
 import ast
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import Any, Dict, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 from urllib.parse import urlparse
 
 import numpy as np
@@ -130,16 +130,25 @@ class SortFieldTimestamp(Preprocessor):
 @dataclass
 class SetRowIndex(Preprocessor):
     """
-    Set a column (almost always event ID) as DataFrame index.
+    Set a column or columns as DataFrame index.
     """
 
-    field_index: Field = FieldSnowplow.EVENT_ID
+    fields_index: List[Field]  # List because we want to perserve the order
+    reset_index: bool = False
+    verify_integrity: bool = True
+    sort_index: bool = True
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        return df.set_index(self.field_index, verify_integrity=True)
+        if self.reset_index:
+            df = df.reset_index()
+
+        df = df.set_index(self.fields_index, verify_integrity=self.verify_integrity)
+
+        if self.sort_index:
+            df = df.sort_index()
 
     def log_result(self, df_in=None, df_out=None) -> None:
-        logger.info(f"Set {self.field_index} as DataFrame index")
+        logger.info(f"Set ({', '.join(self.fields_index)}) as DataFrame index")
 
 
 @dataclass
@@ -564,6 +573,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         - Mark said identified event's target column as True
     """
 
+    field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
     field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
     field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
     field_referrer: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
@@ -573,6 +583,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     field_form_submit_is_newsletter: FieldNew = FieldNew.FORM_SUBMIT_IS_NEWSLETTER
     field_page_is_newsletter: FieldNew = FieldNew.PAGE_IS_NEWSLETTER
     field_leads_to_newsletter_conversion: FieldNew = FieldNew.LEAD_TO_NEWSLETTER_CONVERSION
+    field_newsletter_leading_event: FieldNew = FieldNew.NEWSLETTER_LEADING_EVENT
     num_leading_events: int = dataclass_field(default=0, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -581,14 +592,14 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         # from most recent to oldest (we really want ascending=False, but doing
         # this in sort_index right now returns a PerformanceWarning, which
         # seems to be an unresolved bug that's related to https://github.com/pandas-dev/pandas/issues/17931)
-        df = (
-            df.reset_index()
-            .set_index(
-                [self.field_user_id, self.field_user_session_idx, self.field_user_session_event_idx],
-                verify_integrity=True,
-            )
-            .sort_index()
-        )
+        # df = (
+        #     df.reset_index()
+        #     .set_index(
+        #         [self.field_user_id, self.field_user_session_idx, self.field_user_session_event_idx],
+        #         verify_integrity=True,
+        #     )
+        #     .sort_index()
+        # )
 
         # Create new target-label field, first set everything to False
         df[self.field_leads_to_newsletter_conversion] = False
@@ -600,7 +611,13 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         for event_index in indices_newsletter_submission:
             event_leading_index = self._identify_leading_event(df, event_index)
             if event_leading_index is not None:
+                # Mark idenfitied predecessor as leading
                 df.at[event_leading_index, self.field_leads_to_newsletter_conversion] = True
+                # Mark leading ID in original event
+                df.at[event_index, self.field_newsletter_leading_event] = df.at[
+                    event_leading_index, self.field_event_id
+                ]
+                # Increment count
                 self.num_leading_events += 1
 
         return df
