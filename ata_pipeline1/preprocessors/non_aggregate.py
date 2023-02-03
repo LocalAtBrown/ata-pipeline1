@@ -531,8 +531,11 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     form in its dedicated newsletter page. In other pages, such as articles,
     its shows an ask with a hyperlink to said newsletter page. If we use the
     `form_submit_is_newsletter` column as the target variable, it will only
-    be True for events happening in said newsletter page, which is trivial.
-    What we really want is to label the page (e.g. article) that _leads_to the
+    be True for events happening in said newsletter page; then any model that
+    trains itself on these events will just prescribe True for events happening
+    in a newsletter-dedicated page, which is trivial.
+
+    What we really want is to label the page (e.g. article) that _leads_ to the
     newsletter-page view where the newsletter form submission happens. Other sites
     may have pages that aren't solely dedicated to newsletter sign-up (in which
     case we can just use `form_submit_is_newsletter`), but they also have
