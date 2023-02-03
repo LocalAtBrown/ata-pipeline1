@@ -147,6 +147,8 @@ class SetRowIndex(Preprocessor):
         if self.sort_index:
             df = df.sort_index()
 
+        return df
+
     def log_result(self, df_in=None, df_out=None) -> None:
         logger.info(f"Set ({', '.join(self.fields_index)}) as DataFrame index")
 
