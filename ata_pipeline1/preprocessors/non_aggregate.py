@@ -715,6 +715,9 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     def compare_urlpaths(urlpath_a: str, urlpath_b: str) -> bool:
         # Could use something more robust than hard equality check,
         # perhaps some similarity metric such as Levenshtein or Jaro-Winkler?
+        # Although, if we do our due diligence in standardizing these URL
+        # paths (either with pydantic or other preprocessors), simple
+        # equality check is enough
         return append_slash(urlpath_a) == append_slash(urlpath_b)
 
     def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
