@@ -589,19 +589,8 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     num_leading_events: int = dataclass_field(default=0, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        # Change from event-ID index to user-session-event MultiIndex
-        # Also sort those indices to make it easy to traverse
-        # from most recent to oldest (we really want ascending=False, but doing
-        # this in sort_index right now returns a PerformanceWarning, which
-        # seems to be an unresolved bug that's related to https://github.com/pandas-dev/pandas/issues/17931)
-        # df = (
-        #     df.reset_index()
-        #     .set_index(
-        #         [self.field_user_id, self.field_user_session_idx, self.field_user_session_event_idx],
-        #         verify_integrity=True,
-        #     )
-        #     .sort_index()
-        # )
+        # Index should already be changed to user-session-event MultiIndex and
+        # sorted in ascending order by SortRowIndex.
 
         # Create new target-label field, first set everything to False
         df[self.field_leads_to_newsletter_conversion] = False
