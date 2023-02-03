@@ -631,17 +631,15 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         self, df: pd.DataFrame, event_index: Tuple[str, int, int]
     ) -> Optional[Tuple[str, int, int]]:
         # Get individual index components
-        user_id, original_user_session_idx, original_user_session_event_idx = event_index
+        user_id, user_session_idx, original_user_session_event_idx = event_index
 
         # Filter & reverse user-session-event indices to those before the original event
         # e.g. if original indices are [1, 2, 3, 4, 5] and event index is 4,
         # return [3, 2, 1]
-        predecessor_user_session_event_indices = range(original_user_session_event_idx - 1, 0, -1)
-
         # Index should already have been sorted in ascending order
-        for i in predecessor_user_session_event_indices:
+        for predecessor_user_session_event_idx in range(original_user_session_event_idx - 1, 0, -1):
             # Looking only at events from the same user and session
-            predecessor_index = (user_id, original_user_session_idx, i)
+            predecessor_index = (user_id, user_session_idx, predecessor_user_session_event_idx)
 
             # If predecessor's page is not newsletter-dedicated-page, make it the leading event
             if df.at[predecessor_index, self.field_page_is_newsletter] is np.False_:
