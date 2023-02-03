@@ -16,6 +16,7 @@ from ata_pipeline1.helpers.enums import (
 )
 from ata_pipeline1.helpers.logging import logging
 from ata_pipeline1.helpers.typing import Field
+from ata_pipeline1.helpers.url import append_slash
 from ata_pipeline1.preprocessors.base import Preprocessor
 from ata_pipeline1.site import (
     SiteDomain,
@@ -549,7 +550,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                     - Traverse through precending events (a.k.a. predecessor) IN THE SAME
                     AND PREVIOUS SESSIONS, starting from most recent. For every predecessor:
                         - If (predecessor's page is not a newsletter page) and (predecessor
-                        is in the same session as original) and (X is not None),
+                        is in the same session as original) and (X is None),
                             - Assign predecessor to X so that it's the most recent event
                             happening in a non-newsletter-dedicated page and our default leading
                             event (more below).
@@ -561,14 +562,13 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                                 leading_.
                             - Else, continue to next predecessor
         - Mark said identified event's target column as True
-
-    (Short-circuit and return None if indexing fails at any point.)
     """
 
     field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
     field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
     field_referrer: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
     field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
+    field_page_urlpath: FieldSnowplow = FieldSnowplow.PAGE_URLPATH
     field_user_session_event_idx: FieldNew = FieldNew.DOMAIN_SESSION_EVENTIDX
     field_form_submit_is_newsletter: FieldNew = FieldNew.FORM_SUBMIT_IS_NEWSLETTER
     field_page_is_newsletter: FieldNew = FieldNew.PAGE_IS_NEWSLETTER
@@ -622,21 +622,20 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         else:
             return self._identify_leading_event_externally_referred(df, event_index)
 
-    def _identify_leading_event_internally_referred(
-        self, df: pd.DataFrame, event_index: Tuple[str, int, int]
-    ) -> Optional[Tuple[str, int, int]]:
-        pass
-
     def _identify_leading_event_externally_referred(
         self, df: pd.DataFrame, event_index: Tuple[str, int, int]
     ) -> Optional[Tuple[str, int, int]]:
+        """
+        Leading-event identification logic as applied to an externally
+        (non-internally) referred event.
+        """
         # Get individual index components
         user_id, user_session_idx, original_user_session_event_idx = event_index
 
         # Filter & reverse user-session-event indices to those before the original event
         # e.g. if original indices are [1, 2, 3, 4, 5] and event index is 4,
         # return [3, 2, 1]
-        # Index should already have been sorted in ascending order
+        # MultiIndex should already have been sorted in ascending order
         for predecessor_user_session_event_idx in range(original_user_session_event_idx - 1, 0, -1):
             # Looking only at events from the same user and session
             predecessor_index = (user_id, user_session_idx, predecessor_user_session_event_idx)
@@ -644,6 +643,66 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
             # If predecessor's page is not newsletter-dedicated-page, make it the leading event
             if df.at[predecessor_index, self.field_page_is_newsletter] is np.False_:
                 return predecessor_index
+
+    def _identify_leading_event_internally_referred(
+        self, df: pd.DataFrame, event_index: Tuple[str, int, int]
+    ) -> Optional[Tuple[str, int, int]]:
+        """
+        Leading-event identification logic as applied to an internally referred event.
+        """
+        original_index = event_index
+
+        # Get individual index components
+        user_id, original_user_session_idx, original_user_session_event_idx = original_index
+
+        # Default index
+        default_index = None
+
+        # MultiIndex should already have been sorted in ascending order
+        for predecessor_user_session_idx, predecessor_user_session_event_idx in reversed(df.loc[user_id].index):
+            predecessor_is_later_session = predecessor_user_session_idx > original_user_session_idx
+            predecessor_is_same_session = predecessor_user_session_idx == original_user_session_idx
+
+            # If predecessor doesn't happen before original, it's not really a predecessor, isn't it?
+            if predecessor_is_later_session or (
+                predecessor_is_same_session and predecessor_user_session_event_idx >= original_user_session_event_idx
+            ):
+                continue
+
+            # Predecessor's full index
+            predecessor_index = (user_id, predecessor_user_session_idx, predecessor_user_session_event_idx)
+
+            # Assign default if it isn't already assigned
+            if (
+                default_index is None
+                and predecessor_is_same_session
+                and df.at[predecessor_index, self.field_page_is_newsletter] is np.False_
+            ):
+                default_index = predecessor_index
+
+            # URL paths
+            original_referral_urlpath = df.at[original_index, self.field_referrer]
+            predecessor_urlpath = df.at[predecessor_index, self.field_page_urlpath]
+
+            # If original's referral path is the same as predecessor's path, make
+            # predecessor leading
+            if self.compare_urlpaths(original_referral_urlpath, predecessor_urlpath) is True:
+                return predecessor_index
+
+            # Else, if predecessor is first event of its session and its referrer medium
+            # is not internal, make default index the leading index; else move on to next
+            # predecessor
+            if (
+                predecessor_user_session_event_idx == 1
+                and df.at[predecessor_index, self.field_referral_medium] != EventReferrerMedium.INTERNAL
+            ):
+                return default_index
+
+    @staticmethod
+    def compare_urlpaths(urlpath_a: str, urlpath_b: str) -> bool:
+        # Could use something more robust than hard equality check,
+        # perhaps some similarity metric such as Levenshtein or Jaro-Winkler?
+        return append_slash(urlpath_a) == append_slash(urlpath_b)
 
     def log_result(self, df_in=None, df_out=None) -> None:
         logger.info("Created target-label column")
