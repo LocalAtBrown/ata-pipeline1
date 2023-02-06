@@ -563,13 +563,16 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                     - Initialize some memo variable X as None
                     - Traverse through precending events (a.k.a. predecessor) IN THE SAME
                     AND PREVIOUS SESSIONS, starting from most recent. For every predecessor:
-                        - If (predecessor's page is not a newsletter page) and (predecessor
-                        is in the same session as original) and (X is None),
+                        - If [predecessor's page is not a newsletter page] and [predecessor
+                        is in the same session as original] and [X is None],
                             - Assign predecessor to X so that it's the most recent event
                             happening in a non-newsletter-dedicated page and our default leading
                             event (more below).
-                        - If predecessor's page_urlpath matches (with total or enough
-                        confidence) original's referral URL path, _make predecessor leading_.
+                        - If [original's referrer points to a newsletter-dedicated page] and
+                        [X is NOT None], _make X leading_.
+                        - If [original's referrer does NOT point to a newsletter-dedicated page] and
+                        [predecessor's page_urlpath matches (with total or enough confidence) original's
+                        referral URL path], _make predecessor leading_.
                         - Else:
                             - If predecessor is the first event of its session:
                                 - If predecessor's referral medium is NOT internal, _make X
@@ -578,7 +581,9 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         - Mark said identified event's target column as True
     """
 
+    site_page_type_classifier: SitePageClassifier
     field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
+    field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
     field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
     field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
     field_referrer: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
@@ -668,6 +673,23 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         # Get individual index components
         user_id, original_user_session_idx, original_user_session_event_idx = original_index
 
+        # Original's referral URL path
+        original_referral_urlpath = df.at[original_index, self.field_referrer]
+
+        # Whether original's referral URL path points to a newsletter-dedicated page.
+        # We create a small pandas Series mocking an event with timestamp & URL path and
+        # pass it to the page-type classifier, which expects an event. If this is use case
+        # becomes more frequent, the page-type classifier could be redesigned to make
+        # it feel a little less hacky
+        original_referral_urlpath_is_newsletter = self.site_page_type_classifier.is_newsletter(
+            pd.Series(
+                {
+                    self.field_timestamp: df.at[original_index, self.field_timestamp],
+                    self.field_page_urlpath: original_referral_urlpath,
+                }
+            )
+        )
+
         # Default index
         default_index = None
 
@@ -693,18 +715,26 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
             ):
                 default_index = predecessor_index
 
-            # URL paths
-            original_referral_urlpath = df.at[original_index, self.field_referrer]
+            # Predecessor's URL path
             predecessor_urlpath = df.at[predecessor_index, self.field_page_urlpath]
 
-            # If original's referral path is the same as predecessor's path, make
-            # predecessor leading
-            if self.compare_urlpaths(original_referral_urlpath, predecessor_urlpath) is True:
+            # If original's referral path points to a newsletter-dedicated page (i.e.,
+            # we can't get any meaningful information out of it) and a default
+            # preprocessor exists, make it leading
+            if original_referral_urlpath_is_newsletter and default_index is not None:
+                return default_index
+
+            # If original's referral path does not point to a newsletter-dedicated page
+            # and is the same as predecessor's path, make predecessor leading
+            if (
+                not original_referral_urlpath_is_newsletter
+                and self.compare_urlpaths(original_referral_urlpath, predecessor_urlpath) is True
+            ):
                 return predecessor_index
 
-            # Else, if predecessor is first event of its session and its referrer medium
-            # is not internal, make default index the leading index; else move on to next
-            # predecessor
+            # Else, if predecessor is first event of its session and its referrer
+            # medium is not internal, make default preprocessor leading index (even if
+            # default index is None); else move on to next predecessor
             if (
                 predecessor_user_session_event_idx == 1
                 and df.at[predecessor_index, self.field_referral_medium] != EventReferrerMedium.INTERNAL
