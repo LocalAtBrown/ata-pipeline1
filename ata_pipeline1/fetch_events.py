@@ -56,7 +56,7 @@ def alt_fetch_events(site_name: SiteName, start: datetime, end: datetime, engine
                 sub1,
                 (Event.domain_userid == sub1.c.domain_userid)
                 & (Event.domain_sessionidx >= sub1.c.minidx)
-                & (Event.domain_sessionidx <= sub1.c.maxidx),
+                & (Event.domain_sessionidx < sub1.c.maxidx),
             )
             .where(
                 Event.site_name == site_name,
