@@ -50,7 +50,7 @@ def alt_fetch_events(site_name: SiteName, start: datetime, end: datetime, engine
             .group_by(Event.domain_userid)
         )
         sub1 = statement1.subquery("s1")
-        j = (
+        joined = (
             select(Event)
             .join(
                 sub1,
@@ -63,8 +63,7 @@ def alt_fetch_events(site_name: SiteName, start: datetime, end: datetime, engine
             )
             .order_by(Event.derived_tstamp)
         )
-        print(j)
-        results = session.execute(j)
+        results = session.execute(joined)
         data = [event[0].dict() for event in results]
 
     return pd.DataFrame(data=data)
