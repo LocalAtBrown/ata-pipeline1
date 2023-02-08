@@ -26,6 +26,7 @@ notebook = "^6.5.2"
 matplotlib = "^3.6.2"
 typing-extensions = "^4.4.0"
 tqdm = "^4.64.1"
+seaborn = "^0.12.2"
 
 
 [build-system]
