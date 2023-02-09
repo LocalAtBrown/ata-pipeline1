@@ -1,21 +1,14 @@
-from collections.abc import Generator
-from contextlib import contextmanager
 from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
-from ata_db_models.models import Event, SQLModel
+from ata_db_models.models import Event
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session
 
 from ata_pipeline1.fetch_events import fetch_events
-from ata_pipeline1.helpers.enums import EventName
-from ata_pipeline1.site.names import SiteName
-
-
-@pytest.fixture
-def current_timestamp() -> datetime:
-    return datetime.now()
+from ata_pipeline1.helpers.enums import EventName, SiteName
+from tests.helpers import create_and_drop_tables
 
 
 @pytest.fixture
@@ -40,29 +33,15 @@ def single_event(current_timestamp: datetime) -> Event:
     )
 
 
-@contextmanager
-def create_and_drop_tables(engine: Engine) -> Generator[None, None, None]:
-    """
-    Context manager to safely create and drop tables before and after each test.
-    """
-    SQLModel.metadata.create_all(engine)
-    try:
-        yield
-    finally:
-        SQLModel.metadata.drop_all(engine)
-
-
-@pytest.mark.integration
-def test_fetch_events(
-    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
-) -> None:
+def test_fetch_events(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # need to grab dict from event before putting in db, session and sqlmodel object mutate over time
     event_as_dict = single_event.dict()
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             session.add(single_event)
+            session.commit()
 
         # use the fn to fetch
         df = fetch_events(
@@ -70,7 +49,7 @@ def test_fetch_events(
             event_types=[EventName.PAGE_PING],
             start=current_timestamp - timedelta(minutes=5),
             end=current_timestamp + timedelta(minutes=5),
-            session_factory=session_factory,
+            engine=engine,
         )
 
         data = df.to_dict(orient="records")
@@ -79,14 +58,11 @@ def test_fetch_events(
     assert event_as_dict == data[0]
 
 
-@pytest.mark.integration
-def test_fetch_events_wrong_site(
-    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
-) -> None:
+def test_fetch_events_wrong_site(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             session.add(single_event)
 
         # use the fn to fetch
@@ -95,21 +71,18 @@ def test_fetch_events_wrong_site(
             event_types=[EventName.PAGE_PING],
             start=current_timestamp - timedelta(minutes=5),
             end=current_timestamp + timedelta(minutes=5),
-            session_factory=session_factory,
+            engine=engine,
         )
 
     # assert it is as desired
     assert df.empty
 
 
-@pytest.mark.integration
-def test_fetch_events_wrong_events(
-    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
-) -> None:
+def test_fetch_events_wrong_events(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             session.add(single_event)
 
         # use the fn to fetch
@@ -118,21 +91,18 @@ def test_fetch_events_wrong_events(
             event_types=[EventName.PAGE_VIEW],
             start=current_timestamp - timedelta(minutes=5),
             end=current_timestamp + timedelta(minutes=5),
-            session_factory=session_factory,
+            engine=engine,
         )
 
     # assert it is as desired
     assert df.empty
 
 
-@pytest.mark.integration
-def test_fetch_events_wrong_time(
-    single_event: Event, current_timestamp: datetime, engine: Engine, session_factory: sessionmaker
-) -> None:
+def test_fetch_events_wrong_time(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # create table in db
     with create_and_drop_tables(engine):
         # prepop with valid data
-        with session_factory.begin() as session:  # type: ignore
+        with Session(engine) as session:
             session.add(single_event)
 
         # use the fn to fetch
@@ -141,7 +111,7 @@ def test_fetch_events_wrong_time(
             event_types=[EventName.PAGE_PING],
             start=current_timestamp + timedelta(minutes=5),
             end=current_timestamp + timedelta(minutes=10),
-            session_factory=session_factory,
+            engine=engine,
         )
 
     # assert it is as desired

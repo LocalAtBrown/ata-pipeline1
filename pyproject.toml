@@ -9,15 +9,15 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "3.9.16"
 pandas = "^1.5.1"
-ata-db-models = "0.0.11"
-sqlalchemy = "1.4.41"
-sqlmodel = "0.0.8"
+ata-db-models = "0.0.13"
+sqlalchemy = "^1.4.41"
+sqlmodel = "^0.0.8"
 numpy = "^1.24.1"
 user-agents = "^2.2.0"
 
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.961"
+mypy = "0.961"
 pre-commit = "^2.19.0"
 pytest = "^7.1.2"
 pandas-stubs = "^1.5.1"
@@ -55,6 +55,7 @@ profile = "black"
 [tool.mypy]
 strict = "True"
 files = "."
+plugins = "sqlmypy"
 exclude = [
     '\.venv',
 ]
@@ -67,3 +68,12 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 markers = ["unit", "integration"]
 testpaths = ["tests"]
+
+[[tool.mypy.overrides]]
+module = "ata_pipeline1.helpers.logging"
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = "sqlalchemy.*"
+follow_imports = "skip"
+follow_imports_for_stubs = true
