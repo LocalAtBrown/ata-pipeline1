@@ -8,7 +8,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlmodel import select
 
-from ata_pipeline1.helpers.enums import SiteName
+from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.write_prescriptions import write_prescriptions
 from tests.helpers import create_and_drop_tables
 
@@ -26,6 +26,7 @@ def prescriptions_as_df(prescriptions: list[Prescription]) -> pd.DataFrame:
     return pd.DataFrame(data=[p.dict() for p in prescriptions])
 
 
+@pytest.mark.integration
 def test_write_prescriptions(prescriptions_as_df: pd.DataFrame, engine: Engine) -> None:
     with create_and_drop_tables(engine):
         rows_written = write_prescriptions(df=prescriptions_as_df, engine=engine)
@@ -39,6 +40,7 @@ def test_write_prescriptions(prescriptions_as_df: pd.DataFrame, engine: Engine) 
     assert prescriptions_as_df.equals(from_db)
 
 
+@pytest.mark.integration
 def test_write_prescriptions_no_data(engine: Engine) -> None:
     with create_and_drop_tables(engine):
         rows_written = write_prescriptions(df=pd.DataFrame(), engine=engine)

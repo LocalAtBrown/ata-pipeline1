@@ -7,8 +7,9 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from sqlmodel import select
 
-from ata_pipeline1.helpers.enums import EventName, SiteName
+from ata_pipeline1.helpers.enums import EventName
 from ata_pipeline1.main import run
+from ata_pipeline1.site.names import SiteName
 from tests.helpers import create_and_drop_tables
 
 
@@ -42,6 +43,7 @@ def many_events(current_timestamp: datetime, many_uuids: list[UUID]) -> list[Eve
     ]
 
 
+@pytest.mark.integration
 def test_run(many_events: list[Event], many_uuids: list[UUID], engine: Engine) -> None:
     # set up db
     with create_and_drop_tables(engine):

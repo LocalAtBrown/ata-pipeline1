@@ -7,7 +7,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from ata_pipeline1.fetch_events import fetch_events
-from ata_pipeline1.helpers.enums import EventName, SiteName
+from ata_pipeline1.helpers.enums import EventName
+from ata_pipeline1.site.names import SiteName
 from tests.helpers import create_and_drop_tables
 
 
@@ -33,6 +34,7 @@ def single_event(current_timestamp: datetime) -> Event:
     )
 
 
+@pytest.mark.integration
 def test_fetch_events(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # need to grab dict from event before putting in db, session and sqlmodel object mutate over time
     event_as_dict = single_event.dict()
@@ -58,6 +60,7 @@ def test_fetch_events(single_event: Event, current_timestamp: datetime, engine: 
     assert event_as_dict == data[0]
 
 
+@pytest.mark.integration
 def test_fetch_events_wrong_site(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # create table in db
     with create_and_drop_tables(engine):
@@ -78,6 +81,7 @@ def test_fetch_events_wrong_site(single_event: Event, current_timestamp: datetim
     assert df.empty
 
 
+@pytest.mark.integration
 def test_fetch_events_wrong_events(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # create table in db
     with create_and_drop_tables(engine):
@@ -98,6 +102,7 @@ def test_fetch_events_wrong_events(single_event: Event, current_timestamp: datet
     assert df.empty
 
 
+@pytest.mark.integration
 def test_fetch_events_wrong_time(single_event: Event, current_timestamp: datetime, engine: Engine) -> None:
     # create table in db
     with create_and_drop_tables(engine):
