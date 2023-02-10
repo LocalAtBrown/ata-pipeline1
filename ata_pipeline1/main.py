@@ -5,8 +5,9 @@ from ata_db_models.helpers import get_conn_string
 from sqlalchemy import create_engine
 
 from ata_pipeline1.fetch_events import fetch_events
-from ata_pipeline1.helpers.enums import EventName, SiteName
+from ata_pipeline1.helpers.enums import EventName
 from ata_pipeline1.process import process
+from ata_pipeline1.site.names import SiteName
 from ata_pipeline1.write_prescriptions import write_prescriptions
 
 
