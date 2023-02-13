@@ -562,7 +562,8 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                 - Else, i.e., the original event's referral medium is internal,
                     - Initialize some memo variable X as None
                     - Traverse through precending events (a.k.a. predecessor) IN THE SAME
-                    AND PREVIOUS SESSIONS, starting from most recent. For every predecessor:
+                    (AND, IF SPECIFIED, PREVIOUS SESSIONS), starting from most recent.
+                    For every predecessor:
                         - If [predecessor's page is not a newsletter page] and [predecessor
                         is in the same session as original] and [X is None],
                             - Assign predecessor to X so that it's the most recent event
@@ -573,15 +574,14 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                         - If [original's referrer does NOT point to a newsletter-dedicated page] and
                         [predecessor's page_urlpath matches (with total or enough confidence) original's
                         referral URL path], _make predecessor leading_.
-                        - Else:
-                            - If predecessor is the first event of its session:
-                                - If predecessor's referral medium is NOT internal, _make X
-                                leading_.
-                            - Else, continue to next predecessor
+                        - If predecessor is the first event of its session:
+                            - If predecessor's referral medium is NOT internal, _make X leading_.
+                        - Else, continue to next predecessor
         - Mark said identified event's target column as True
     """
 
     site_page_type_classifier: SitePageClassifier
+    inspect_previous_sessions: bool = False  # When identifying the leading preprocessor of an internally referred event, whether to traverse to its previous session(s)
     field_event_id: FieldSnowplow = FieldSnowplow.EVENT_ID
     field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
     field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
@@ -697,12 +697,19 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         for predecessor_user_session_idx, predecessor_user_session_event_idx in reversed(df.loc[user_id].index):
             predecessor_is_later_session = predecessor_user_session_idx > original_user_session_idx
             predecessor_is_same_session = predecessor_user_session_idx == original_user_session_idx
+            predecessor_is_previous_session = predecessor_user_session_idx < original_user_session_idx
 
-            # If predecessor doesn't happen before original, it's not really a predecessor, isn't it?
+            # If predecessor doesn't happen before original, it's not really a
+            # predecessor, isn't it?
             if predecessor_is_later_session or (
                 predecessor_is_same_session and predecessor_user_session_event_idx >= original_user_session_event_idx
             ):
                 continue
+
+            # If predecessor happens in a previous session, and we choose not to
+            # inspect previous sessions, we're unable to find a leading event
+            if not self.inspect_previous_sessions and predecessor_is_previous_session:
+                return
 
             # Predecessor's full index
             predecessor_index = (user_id, predecessor_user_session_idx, predecessor_user_session_event_idx)
