@@ -25,7 +25,7 @@ class AggregatePageActivities(Preprocessor):
             FieldSnowplow.DOC_HEIGHT: (FieldSnowplow.DOC_HEIGHT, "mean"),
             FieldSnowplow.DOMAIN_SESSIONIDX: (FieldSnowplow.DOMAIN_SESSIONIDX, "first"),
             FieldSnowplow.DOMAIN_USERID: (FieldSnowplow.DOMAIN_USERID, "first"),
-            FieldSnowplow.DVCE_SCREENHEIGHT: (FieldSnowplow.DVCE_SCREENHEIGHT, "mean"),
+            FieldSnowplow.BR_VIEWHEIGHT: (FieldSnowplow.BR_VIEWHEIGHT, "mean"),
             FieldSnowplow.EVENT_NAME: (FieldSnowplow.EVENT_NAME, "first"),
             FieldSnowplow.PAGE_URLPATH: (FieldSnowplow.PAGE_URLPATH, "first"),
             FieldSnowplow.PAGE_REFERRER: (FieldSnowplow.PAGE_REFERRER, "first"),

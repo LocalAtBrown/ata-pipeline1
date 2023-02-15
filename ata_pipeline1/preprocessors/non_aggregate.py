@@ -87,9 +87,10 @@ class AddFieldMaxScrollDepth(Preprocessor):
     Adds a new column showing maximum scroll-depth percentage.
     """
 
-    field_dvce_screenheight: FieldSnowplow = FieldSnowplow.DVCE_SCREENHEIGHT
+    field_viewport_height: FieldSnowplow = FieldSnowplow.BR_VIEWHEIGHT
+    field_screen_height: FieldSnowplow = FieldSnowplow.DVCE_SCREENHEIGHT
+    field_page_height: FieldSnowplow = FieldSnowplow.DOC_HEIGHT
     field_offset_y: FieldSnowplow = FieldSnowplow.PP_YOFFSET_MAX
-    field_doc_height: FieldSnowplow = FieldSnowplow.DOC_HEIGHT
     field_max_scroll_depth: FieldNew = FieldNew.SCROLL_DEPTH_MAX
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -97,9 +98,11 @@ class AddFieldMaxScrollDepth(Preprocessor):
 
         df[self.field_max_scroll_depth] = (
             # Screen height + y-offset = total pixels user's scrolled to
-            ((df[self.field_dvce_screenheight] + df[self.field_offset_y]) / df[self.field_doc_height])
-            # First, try to fillna using (screen height / page height) since we should expect reader to go as far as here without any scrolling
-            .fillna(df[self.field_dvce_screenheight] / df[self.field_doc_height])
+            ((df[self.field_viewport_height] + df[self.field_offset_y]) / df[self.field_page_height])
+            # First, try to fillna using (viewport height / page height) since we should expect reader to go as far as here without any scrolling
+            .fillna(df[self.field_viewport_height] / df[self.field_page_height])
+            # Fallback fillna: Use device height as viewport height if viewport height's not available
+            .fillna(df[self.field_screen_height] / df[self.field_page_height])
             # Fallback fillna
             .fillna(0)
             # Clamp to [0, 1] because we want percentages
@@ -862,7 +865,7 @@ class ConvertFieldTypes(Preprocessor):
             FieldSnowplow.BR_VIEWHEIGHT,
             FieldSnowplow.BR_VIEWWIDTH,
             FieldSnowplow.DOC_HEIGHT,
-            FieldSnowplow.DVCE_SCREENHEIGHT,
+            FieldSnowplow.viewport_HEIGHT,
             FieldSnowplow.DVCE_SCREENWIDTH,
             FieldSnowplow.PP_YOFFSET_MAX,
         }
