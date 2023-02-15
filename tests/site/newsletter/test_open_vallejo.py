@@ -19,6 +19,8 @@ class TestComponentZero:
         df = pd.DataFrame(
             [
                 [
+                    "1200",
+                    "1000",
                     "2022-11-04 17:04:17.234",
                     "4284",
                     "2",
@@ -27,15 +29,14 @@ class TestComponentZero:
                     "320",
                     "dc2295e6-7e64-4f17-9df3-53466045eac9",
                     EventName.SUBMIT_FORM,
-                    "173295ed-93ac-4504-8dd8-d880f8d2c74e",
                     "https://openvallejo.org/donate/?mc_cid=396eb8ce49&mc_eid=3327a7bf29&utm_campaign=396eb8ce49-Vallejo+patrol+staffing+story_COPY_01&utm_medium=email&utm_source=Open+Vallejo&utm_term=0_5c634b5220-396eb8ce49-600953573",
                     "/newsletter/",
                     None,
                     "internal",
                     None,
+                    None,
+                    None,
                     SiteName.OPEN_VALLEJO,
-                    None,
-                    None,
                     "{'formId': 'mc-embedded-subscribe-form', 'formClasses': ['validate'], 'elements': [{'name': 'EMAIL', 'value': '%s', 'nodeName': 'INPUT', 'type': 'email'}, {'name': 'b_625f546ae539f2396949b95f4_5c634b5220', 'value': '', 'nodeName': 'INPUT', 'type': 'text'}]}"
                     % dummy_email,
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 15_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6,2 Mobile/15E148 Safari/604.1",

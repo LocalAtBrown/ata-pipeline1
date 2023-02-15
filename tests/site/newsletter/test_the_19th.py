@@ -19,6 +19,8 @@ class TestComponentZero:
         df = pd.DataFrame(
             [
                 [
+                    "1200",
+                    "1000",
                     "2022-11-07 17:31:18.216",
                     "6991",
                     "1",
@@ -27,15 +29,14 @@ class TestComponentZero:
                     "768",
                     "4d768aef-addc-4a3a-a133-1ea7fbd184f1",
                     EventName.SUBMIT_FORM,
-                    "b800111b-fe37-4f49-b0c9-61fbbcc5ff4a",
                     "https://www.google.com/",
                     "/2022/06/mayra-flores-record-women-congress/",
                     None,
                     "search",
                     "Google",
+                    None,
+                    None,
                     SiteName.THE_19TH,
-                    None,
-                    None,
                     "{'formId': 'newsletter-form-block_62b24d43296c5', 'formClasses': ['newsletter-form', 'align', 'js-newsletter-form'], 'elements': [{'name': 'EMAIL', 'value': '%s', 'nodeName': 'INPUT', 'type': 'email'}, {'name': 'subscribe-confirmation-block_62b24d43296c5', 'value': 'on', 'nodeName': 'INPUT', 'type': 'checkbox'}, {'name': 'NEWSLETTER', 'value': 'e35d7d0333', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'group[70588][1]', 'value': '1', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'b_8c4d626920c5131bb82226529_a35c3279be', 'value': '', 'nodeName': 'INPUT', 'type': 'text'}]}"
                     % dummy_email,
                     "Mozilla/5.0 (iPad; CPU OS 11_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1",

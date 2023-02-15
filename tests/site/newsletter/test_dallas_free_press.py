@@ -19,6 +19,8 @@ class TestComponentZero:
         df = pd.DataFrame(
             [
                 [
+                    "1200",
+                    "1000",
                     "2022-11-04 15:33:57.85",
                     "1502",
                     "1",
@@ -27,15 +29,14 @@ class TestComponentZero:
                     "1280",
                     "8c62f083-539a-4158-bddd-ec83271639cd",
                     EventName.SUBMIT_FORM,
-                    "957e4dc1-2754-4213-949b-d5928d446911",
                     "https://dallasfreepress.com/dallas-news/dallas-forgot-remember-reclaim-lost-black-schools-education-history/",
                     "/text-and-email-notifications/",
                     None,
                     "internal",
                     None,
+                    None,
+                    None,
                     SiteName.DALLAS_FREE_PRESS,
-                    None,
-                    None,
                     "{'formId': 'mc-embedded-subscribe-form', 'formClasses': ['validate'], 'elements': [{'name': 'EMAIL', 'value': '%s', 'nodeName': 'INPUT', 'type': 'email'}, {'name': 'FNAME', 'value': 'Libby', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'LNAME', 'value': 'Daniels', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'MMERGE3', 'value': '75231', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'MMERGE4', 'value': '9729253923', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'group[8368][1]', 'value': '1', 'nodeName': 'INPUT', 'type': 'checkbox'}, {'name': 'group[8368][2]', 'value': '2', 'nodeName': 'INPUT', 'type': 'checkbox'}, {'name': 'group[8368][4]', 'value': None, 'nodeName': 'INPUT', 'type': 'checkbox'}, {'name': 'b_6cbf3c038f5cc4d279f4da4ed_37f4ad3cfe', 'value': '', 'nodeName': 'INPUT', 'type': 'text'}]}"
                     % dummy_email,
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",

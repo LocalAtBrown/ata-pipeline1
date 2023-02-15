@@ -19,6 +19,8 @@ class TestSiteNewsletterSignupValidatorComponent:
         df = pd.DataFrame(
             [
                 [
+                    "1200",
+                    "1000",
                     "2022-11-03 05:39:13.16",
                     "697",
                     "4",
@@ -27,15 +29,14 @@ class TestSiteNewsletterSignupValidatorComponent:
                     "1366",
                     "2bba4051-c7f9-46cd-90bc-9b869a5fe187",
                     EventName.SUBMIT_FORM,
-                    "156f6713-4722-49cc-8335-721742f66525",
                     "https://www.afrolanews.org/",
                     "/subscribe",
                     None,
                     "unknown",
                     None,
+                    None,
+                    None,
                     SiteName.AFRO_LA,
-                    None,
-                    None,
                     "{'formId': 'FORM', 'formClasses': ['group', 'w-full', 'rounded-wt', 'bg-transparent', 'shadow-none', 'sm:shadow-md'], 'elements': [{'name': 'ref', 'value': '', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'redirect_path', 'value': '/', 'nodeName': 'INPUT', 'type': 'hidden'}, {'name': 'double_opt', 'value': 'true', 'nodeName': 'INPUT', 'type': 'hidden'}, {'name': 'origin', 'value': '/subscribe', 'nodeName': 'INPUT', 'type': 'hidden'}, {'name': 'visit_token', 'value': '004abfd4-ea3e-4246-87a4-83d0e153d383', 'nodeName': 'INPUT', 'type': 'text'}, {'name': 'email', 'value': '%s', 'nodeName': 'INPUT', 'type': 'email'}]}"
                     % dummy_email,
                     "Mozilla/5.0 (X11; CrOS x86_64 14816.131.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",

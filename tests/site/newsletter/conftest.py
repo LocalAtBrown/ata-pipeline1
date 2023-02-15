@@ -10,6 +10,8 @@ from ata_pipeline1.preprocessors import ConvertFieldTypes
 @pytest.fixture(scope="package")
 def fields() -> List[Field]:
     return [
+        FieldSnowplow.BR_VIEWHEIGHT,
+        FieldSnowplow.BR_VIEWWIDTH,
         FieldSnowplow.DERIVED_TSTAMP,
         FieldSnowplow.DOC_HEIGHT,
         FieldSnowplow.DOMAIN_SESSIONIDX,
@@ -18,15 +20,14 @@ def fields() -> List[Field]:
         FieldSnowplow.DVCE_SCREENWIDTH,
         FieldSnowplow.EVENT_ID,
         FieldSnowplow.EVENT_NAME,
-        FieldSnowplow.NETWORK_USERID,
         FieldSnowplow.PAGE_REFERRER,
         FieldSnowplow.PAGE_URLPATH,
         FieldSnowplow.PP_YOFFSET_MAX,
         FieldSnowplow.REFR_MEDIUM,
         FieldSnowplow.REFR_SOURCE,
+        FieldSnowplow.REFR_URLHOST,
+        FieldSnowplow.REFR_URLPATH,
         FieldNew.SITE_NAME,
-        FieldSnowplow.SEMISTRUCT_FORM_CHANGE,
-        FieldSnowplow.SEMISTRUCT_FORM_FOCUS,
         FieldSnowplow.SEMISTRUCT_FORM_SUBMIT,
         FieldSnowplow.USERAGENT,
     ]

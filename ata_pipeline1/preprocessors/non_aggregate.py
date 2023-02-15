@@ -859,6 +859,8 @@ class ConvertFieldTypes(Preprocessor):
     fields_int: Set[FieldSnowplow] = dataclass_field(default_factory=lambda: {FieldSnowplow.DOMAIN_SESSIONIDX})
     fields_float: Set[FieldSnowplow] = dataclass_field(
         default_factory=lambda: {
+            FieldSnowplow.BR_VIEWHEIGHT,
+            FieldSnowplow.BR_VIEWWIDTH,
             FieldSnowplow.DOC_HEIGHT,
             FieldSnowplow.DVCE_SCREENHEIGHT,
             FieldSnowplow.DVCE_SCREENWIDTH,
@@ -875,8 +877,6 @@ class ConvertFieldTypes(Preprocessor):
     )
     fields_json: Set[FieldSnowplow] = dataclass_field(
         default_factory=lambda: {
-            FieldSnowplow.SEMISTRUCT_FORM_CHANGE,
-            FieldSnowplow.SEMISTRUCT_FORM_FOCUS,
             FieldSnowplow.SEMISTRUCT_FORM_SUBMIT,
         }
     )
