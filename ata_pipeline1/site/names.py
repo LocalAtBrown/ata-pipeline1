@@ -1,7 +1,7 @@
-from enum import Enum
+from ata_pipeline1.helpers.enums import StrEnum
 
 
-class SiteName(str, Enum):
+class SiteName(StrEnum):
     """
     Enum of partner slugs corresponding to the S3 buckets.
     """

@@ -2,7 +2,7 @@ from enum import Enum, auto
 from typing import Any
 
 
-class _StrEnum(str, Enum):
+class StrEnum(str, Enum):
     """
     StrEnum class. Replace with built-in version after upgrading to Python 3.10.
     """
@@ -16,7 +16,7 @@ class _StrEnum(str, Enum):
 
 
 # ---------- EVENT ENUMS ----------
-class EventName(_StrEnum):
+class EventName(StrEnum):
     """
     Enum of snowplow event names that we expect to handle
     """
@@ -28,7 +28,7 @@ class EventName(_StrEnum):
     SUBMIT_FORM = auto()
 
 
-class EventReferrerMedium(_StrEnum):
+class EventReferrerMedium(StrEnum):
     """
     Possible values for the Snowplow refr_medium field, except for NO_REFERRER
     which is our replacement of None.
@@ -44,7 +44,7 @@ class EventReferrerMedium(_StrEnum):
 
 
 # ---------- DATA FIELD ENUMS ----------
-class FieldSnowplow(_StrEnum):
+class FieldSnowplow(StrEnum):
     """
     Enum for Snowplow fields of interest.
     Snowplow documentation of these fields can be found here: https://docs.snowplow.io/docs/understanding-your-pipeline/canonical-event/.
@@ -116,7 +116,7 @@ class FieldSnowplow(_StrEnum):
     USERAGENT = auto()
 
 
-class FieldNew(_StrEnum):
+class FieldNew(StrEnum):
     """
     Enum for non-Snowplow fields to be added.
     """
@@ -172,7 +172,7 @@ class FieldNew(_StrEnum):
 
 
 # ---------- PAGE ENUMS ----------
-class PageType(_StrEnum):
+class PageType(StrEnum):
     HOME = auto()
     ABOUT_US = auto()
     NEWSLETTER = auto()
