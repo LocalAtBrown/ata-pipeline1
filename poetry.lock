@@ -81,7 +81,7 @@ test = ["astroid", "pytest"]
 
 [[package]]
 name = "ata-db-models"
-version = "0.0.13"
+version = "0.0.15"
 description = "Database models and migrations for Automating the Ask."
 category = "main"
 optional = false
@@ -506,7 +506,7 @@ xray = ["mypy-boto3-xray (>=1.26.0,<1.27.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.67"
+version = "1.29.71"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -522,7 +522,7 @@ crt = ["awscrt (==0.16.9)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.29.67"
+version = "1.29.71"
 description = "Type annotations and code completion for botocore"
 category = "main"
 optional = false
@@ -1900,7 +1900,7 @@ test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
 name = "types-awscrt"
-version = "0.16.4"
+version = "0.16.10"
 description = "Type annotations and code completion for awscrt"
 category = "main"
 optional = false
@@ -2045,7 +2045,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = "3.9.16"
-content-hash = "6c32849f50d5a5dcd60e81be8d715668d3fbcf4e5027e3243e2389c872ee76ee"
+content-hash = "7924de5b9c7a6fec6183ac1b2bd4a61c864d1d1fb69845e739ef77c7bae5dc27"
 
 [metadata.files]
 anyio = [
@@ -2092,8 +2092,8 @@ asttokens = [
     {file = "asttokens-2.2.1.tar.gz", hash = "sha256:4622110b2a6f30b77e1473affaa97e711bc2f07d3f10848420ff1898edbe94f3"},
 ]
 ata-db-models = [
-    {file = "ata-db-models-0.0.13.tar.gz", hash = "sha256:b542c8cdf1956bf210d8112bf0671eb539e99d65a3b0d4ef1cedd05dbb15471e"},
-    {file = "ata_db_models-0.0.13-py3-none-any.whl", hash = "sha256:02ad2da72ae80f26b38f595534a5029d194a254ce0325c3299cf75002c22b509"},
+    {file = "ata-db-models-0.0.15.tar.gz", hash = "sha256:afa34e5bca6c6c15e3066523bb51b892c981c3ab3124d71bdd99e1db029f65d2"},
+    {file = "ata_db_models-0.0.15-py3-none-any.whl", hash = "sha256:9fbe29b964be910bd0bb0d3d629215d272e424380c5f7cb09ed6d6cafd50b881"},
 ]
 attrs = [
     {file = "attrs-22.2.0-py3-none-any.whl", hash = "sha256:29e95c7f6778868dbd49170f98f8818f78f3dc5e0e37c0b1f474e3561b240836"},
@@ -2120,12 +2120,12 @@ boto3-stubs = [
     {file = "boto3_stubs-1.26.13-py3-none-any.whl", hash = "sha256:466f1d3bfb8d17cef05ab75d459004411c08a74d247f0d38f6c3706005f7fc1c"},
 ]
 botocore = [
-    {file = "botocore-1.29.67-py3-none-any.whl", hash = "sha256:424c5fa21913d85ea990928acf35622a4f2b7f0750133b96adaa8c642bb6a878"},
-    {file = "botocore-1.29.67.tar.gz", hash = "sha256:0ccec4a906b6b8c7bb6bc5226509059ee9ed94d3cf1014487ef5b8e56801e6a3"},
+    {file = "botocore-1.29.71-py3-none-any.whl", hash = "sha256:40406466f5c416b1f54bfbfc11aef90d783103f7ea77a1992dcaf1768ab04e12"},
+    {file = "botocore-1.29.71.tar.gz", hash = "sha256:783e7fa97bb5bf3759e4b333b8da2bcaffdb54828ea1d759b55329cc39003b98"},
 ]
 botocore-stubs = [
-    {file = "botocore_stubs-1.29.67-py3-none-any.whl", hash = "sha256:26ae5135e681a3dd3500b1b1ac1969aba149ba54195f105fff4fafab943d713b"},
-    {file = "botocore_stubs-1.29.67.tar.gz", hash = "sha256:87bb60ff0b718bc9877bd0d926e5f71e2b33bb7e7e110f87ee21ccb472ff1ede"},
+    {file = "botocore_stubs-1.29.71-py3-none-any.whl", hash = "sha256:1a3628b68961e35df39d3274a3a8ae59dd9830f0980b70db2710c9bc7d236330"},
+    {file = "botocore_stubs-1.29.71.tar.gz", hash = "sha256:146a5292aac76c740205a8b35405835f3d98326b0533d43ac800024bb3f9d4fc"},
 ]
 cffi = [
     {file = "cffi-1.15.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:a66d3508133af6e8548451b25058d5812812ec3798c886bf38ed24a98216fab2"},
@@ -3213,8 +3213,8 @@ traitlets = [
     {file = "traitlets-5.9.0.tar.gz", hash = "sha256:f6cde21a9c68cf756af02035f72d5a723bf607e862e7be33ece505abf4a3bad9"},
 ]
 types-awscrt = [
-    {file = "types_awscrt-0.16.4-py3-none-any.whl", hash = "sha256:6ab83403d9c41f09219d4b00bd7dca0fe6eb174999739a4fa71dbba1033fd9dc"},
-    {file = "types_awscrt-0.16.4.tar.gz", hash = "sha256:fa1a13f544e31d118c92b4e960528ac8b9bcf7ff36b5c402d07f0c423b618896"},
+    {file = "types_awscrt-0.16.10-py3-none-any.whl", hash = "sha256:35e27f667e882ef7d02f1829499df30c0881d4c3ba12ff698c796b79e87ce09e"},
+    {file = "types_awscrt-0.16.10.tar.gz", hash = "sha256:8df494aff24bdce188381304d6e762b797e2e3e67f610dcb7c2a3725f08cbf67"},
 ]
 types-pytz = [
     {file = "types-pytz-2022.7.1.0.tar.gz", hash = "sha256:918f9c3e7a950ba7e7d6f84b18a7cacabc8886cb7125fb1927ff1c752b4b59de"},

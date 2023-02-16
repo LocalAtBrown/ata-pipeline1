@@ -865,7 +865,7 @@ class ConvertFieldTypes(Preprocessor):
             FieldSnowplow.BR_VIEWHEIGHT,
             FieldSnowplow.BR_VIEWWIDTH,
             FieldSnowplow.DOC_HEIGHT,
-            FieldSnowplow.viewport_HEIGHT,
+            FieldSnowplow.DVCE_SCREENHEIGHT,
             FieldSnowplow.DVCE_SCREENWIDTH,
             FieldSnowplow.PP_YOFFSET_MAX,
         }
