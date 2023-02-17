@@ -16,7 +16,7 @@ from ata_pipeline1.helpers.enums import (
 )
 from ata_pipeline1.helpers.logging import logging
 from ata_pipeline1.helpers.typing import Field
-from ata_pipeline1.helpers.url import append_slash
+from ata_pipeline1.helpers.urllib import append_slash
 from ata_pipeline1.preprocessors.base import Preprocessor
 from ata_pipeline1.site import (
     SiteDomain,

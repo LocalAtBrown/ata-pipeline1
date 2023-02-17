@@ -1,6 +1,6 @@
 import pytest
 
-from ata_pipeline1.helpers.url import bulk_append_slash
+from ata_pipeline1.helpers.urllib import bulk_append_slash
 from ata_pipeline1.site.page.afro_la import COMPONENT_221215, COMPONENT_ZERO
 from ata_pipeline1.site.page.base import Patterns
 from tests.site.page.helpers import _test_pattern
