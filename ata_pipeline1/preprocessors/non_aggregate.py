@@ -116,6 +116,72 @@ class AddFieldMaxScrollDepth(Preprocessor):
 
 
 @dataclass
+class DeleteRowsOutlier(Preprocessor):
+    """
+    Remove rows with at least one outlier value in one or more quantitative fields, either using
+    specified minima and/or maxima or (as a fallback) maximum value of absolute z-score.
+    """
+
+    fields: Set[Field] = dataclass_field(default_factory=lambda: set())
+    minima: Dict[Field, float] = dataclass_field(default_factory=lambda: dict())
+    maxima: Dict[Field, float] = dataclass_field(default_factory=lambda: dict())
+    Z_SCORE_ABS_DEFAULT = 3
+    z_scores_abs: Union[float, Dict[Field, float]] = Z_SCORE_ABS_DEFAULT
+    _z_scores_abs_dict: Dict[Field, float] = dataclass_field(init=False, repr=False)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # First, convert z-scores to dict format if it's a constant value
+        self._z_scores_abs_dict = self._get_z_scores_dict()
+
+        # Build query
+        statement = self._build_query_statement()
+
+        return df.query(statement)
+
+    def _get_z_scores_dict(self) -> Dict[Field, float]:
+        if not isinstance(self.z_scores_abs, dict):
+            return {f: self.z_scores_abs for f in self.fields}
+
+        # Not using defaultdict because KeyErrors are actually helpful
+        dict_default = {f: self.Z_SCORE_ABS_DEFAULT for f in self.fields}
+        return {**dict_default, **self.z_scores_abs}
+
+    def _build_query_statement(self) -> str:
+        statement_components = [f"({self._build_query_statement_component(f)})" for f in self.fields]
+        return " and ".join(statement_components)
+
+    def _build_query_statement_component(self, field: Field) -> str:
+        # absolute z-score for default minimum & maximum
+        z_score_abs = self._z_scores_abs_dict[field]
+        # minimum (if specified)
+        minimum = self.minima.get(field)
+        # maximum (if specified)
+        maximum = self.maxima.get(field)
+
+        if minimum is not None:
+            subcomponent_minimum = f"{field} >= {minimum}"
+        else:
+            subcomponent_minimum = f"({field} - {field}.mean()) / {field}.std() >= {-z_score_abs}"
+
+        if maximum is not None:
+            subcomponent_maximum = f"{field} <= {maximum}"
+        else:
+            subcomponent_maximum = f"({field} - {field}.mean()) / {field}.std() <= {z_score_abs}"
+
+        return f"({subcomponent_minimum}) and ({subcomponent_maximum})"
+
+    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
+        n_rows_in = df_in.shape[0]
+        n_rows_out = df_out.shape[0]
+        n_rows_deleted = n_rows_in - n_rows_out
+        logger.info(
+            f"Deleted {n_rows_deleted:,} rows whose values are an outlier in at least "
+            + f"one of the following fields [{', '.join(self.fields)}]. "
+            + f"They account for {n_rows_deleted / n_rows_in:.1%} of all input rows"
+        )
+
+
+@dataclass
 class SortFieldTimestamp(Preprocessor):
     """
     Sorts events by ascending timestamp.
