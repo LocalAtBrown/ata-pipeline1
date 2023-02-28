@@ -158,15 +158,17 @@ class DeleteRowsOutlier(Preprocessor):
         # maximum (if specified)
         maximum = self.maxima.get(field)
 
-        if minimum is not None:
-            condition_minimum = f"{field} >= {minimum}"
-        else:
-            condition_minimum = f"({field} - {field}.mean()) / {field}.std() >= {-z_score_abs}"
+        condition_minimum = (
+            f"{field} >= {minimum}"
+            if minimum is not None
+            else f"({field} - {field}.mean()) / {field}.std() >= {-z_score_abs}"
+        )
 
-        if maximum is not None:
-            condition_maximum = f"{field} <= {maximum}"
-        else:
-            condition_maximum = f"({field} - {field}.mean()) / {field}.std() <= {z_score_abs}"
+        condition_maximum = (
+            f"{field} <= {maximum}"
+            if maximum is not None
+            else f"({field} - {field}.mean()) / {field}.std() <= {z_score_abs}"
+        )
 
         return f"({condition_minimum}) and ({condition_maximum})"
 
