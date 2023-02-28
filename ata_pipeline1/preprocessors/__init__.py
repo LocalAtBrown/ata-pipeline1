@@ -7,6 +7,7 @@ from ata_pipeline1.preprocessors.non_aggregate import (
     AddFieldMaxScrollDepth,
     AddFieldSessionEventIndex,
     AddFieldsPageType,
+    ClipRowsOutlier,
     ConvertFieldTypes,
     DeleteRowsOutlier,
     ParseInternalReferrerUrls,

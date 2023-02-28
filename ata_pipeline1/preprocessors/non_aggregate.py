@@ -150,7 +150,9 @@ class DeleteRowsOutlier(Preprocessor):
         return df.query(self._statement)
 
     def _build_query_statement(self) -> str:
-        statement_components = [self._build_query_statement_component(f, self.bounds[f]) for f in self._fields]
+        statement_components = [
+            self._build_query_statement_component(field, self.bounds[field]) for field in self._fields
+        ]
         return " and ".join([f"({c})" for c in statement_components])
 
     @staticmethod
@@ -163,13 +165,52 @@ class DeleteRowsOutlier(Preprocessor):
         return f"{condition_min or True} and {condition_max or True}"
 
     def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
-        n_rows_in = df_in.shape[0]
-        n_rows_out = df_out.shape[0]
-        n_rows_deleted = n_rows_in - n_rows_out
+        num_rows_in = df_in.shape[0]
+        num_rows_out = df_out.shape[0]
+        num_rows_deleted = num_rows_in - num_rows_out
         logger.info(
-            f"Deleted {n_rows_deleted:,} rows whose values are an outlier in at least "
-            + f"one of the following fields [{', '.join(self._fields)}]. "
-            + f"They account for {n_rows_deleted / n_rows_in:.1%} of all input rows"
+            f"Deleted {num_rows_deleted:,} rows whose values are an outlier in at least "
+            + f"one of the following fields: [{', '.join(self._fields)}]. "
+            + f"They account for {num_rows_deleted / num_rows_in:.1%} of all input rows"
+        )
+
+
+@dataclass
+class ClipRowsOutlier(Preprocessor):
+    """
+    In a given quantitative field, replaces outlier values on the left-hand side with
+    a lower bound (if specified) and on the right-hand side with an upper bound (if
+    specified).
+    """
+
+    # Bound tuple is in (min, max) format
+    bounds: Dict[Field, Tuple[Optional[float], Optional[float]]]
+
+    # Private variables
+    _fields: Iterable[Field] = dataclass_field(init=False, repr=False)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Get fields
+        self._fields = self.bounds.keys()
+
+        # Make a copy of the original so that it's not affected, but can remove
+        # this if memory is an issue
+        df = df.copy()
+
+        for field in self._fields:
+            minimum, maximum = self.bounds[field]
+            df[field] = df[field].clip(lower=minimum, upper=maximum)
+
+        return df
+
+    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
+        df_in = df_in[[*self._fields]]
+        df_out = df_out[[*self._fields]]
+        num_rows_clipped = (df_in != df_out).all(axis=1).sum()
+        logger.info(
+            f"Clipped outlier values in any of the following fields: [{', '.join(self._fields)}] "
+            + f"in {num_rows_clipped:,} rows. "
+            + f"They account for {num_rows_clipped / df_in.shape[0]:.1%} of all input rows"
         )
 
 
