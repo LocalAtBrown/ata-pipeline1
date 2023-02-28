@@ -159,16 +159,16 @@ class DeleteRowsOutlier(Preprocessor):
         maximum = self.maxima.get(field)
 
         if minimum is not None:
-            subcomponent_minimum = f"{field} >= {minimum}"
+            condition_minimum = f"{field} >= {minimum}"
         else:
-            subcomponent_minimum = f"({field} - {field}.mean()) / {field}.std() >= {-z_score_abs}"
+            condition_minimum = f"({field} - {field}.mean()) / {field}.std() >= {-z_score_abs}"
 
         if maximum is not None:
-            subcomponent_maximum = f"{field} <= {maximum}"
+            condition_maximum = f"{field} <= {maximum}"
         else:
-            subcomponent_maximum = f"({field} - {field}.mean()) / {field}.std() <= {z_score_abs}"
+            condition_maximum = f"({field} - {field}.mean()) / {field}.std() <= {z_score_abs}"
 
-        return f"({subcomponent_minimum}) and ({subcomponent_maximum})"
+        return f"({condition_minimum}) and ({condition_maximum})"
 
     def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
         n_rows_in = df_in.shape[0]
