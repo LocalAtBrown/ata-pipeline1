@@ -1,7 +1,7 @@
 import ast
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 from urllib.parse import urlparse
 
 import numpy as np
@@ -118,59 +118,49 @@ class AddFieldMaxScrollDepth(Preprocessor):
 @dataclass
 class DeleteRowsOutlier(Preprocessor):
     """
-    Remove rows with at least one outlier value in one or more quantitative fields, either using
-    specified minima and/or maxima or (as a fallback) maximum value of absolute z-score.
+    Delete rows with at least one outlier value in or more quantitative fields,
+    using specified minimum and maximum cutoff values for each field.
+
+    Note that there exist more advanced techniques to deal with outliers, such as
+    z-score or modified z-score, than simply using raw-value cutoffs. But the author
+    believes they're better used in an exploratory environment (e.g., in a Jupyter
+    notebook) than mechanically and in a production environment (e.g., this pipeline1
+    source code). (See: https://colingorrie.github.io/outlier-detection.html.) These
+    techniques can be performed as a step toward deriving sensible cutoff values.
+
+    Where possible, try to prioritize specifying the min and max as conditions while
+    fetching events from the SQL database over using this preprocessor.
     """
 
-    fields: Set[Field] = dataclass_field(default_factory=lambda: set())
-    minima: Dict[Field, float] = dataclass_field(default_factory=lambda: dict())
-    maxima: Dict[Field, float] = dataclass_field(default_factory=lambda: dict())
-    Z_SCORE_ABS_DEFAULT = 3
-    z_scores_abs: Union[float, Dict[Field, float]] = Z_SCORE_ABS_DEFAULT
-    _z_scores_abs_dict: Dict[Field, float] = dataclass_field(init=False, repr=False)
+    # Bound tuple is in (min, max) format
+    bounds: Dict[Field, Tuple[Optional[float], Optional[float]]]
+
+    # Private variables
+    _fields: Iterable[Field] = dataclass_field(init=False, repr=False)
+    _statement: str = dataclass_field(init=False, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        # First, convert z-scores to dict format if it's a constant value
-        self._z_scores_abs_dict = self._get_z_scores_dict()
+        # Get all fields
+        self._fields = self.bounds.keys()
 
         # Build query
-        statement = self._build_query_statement()
+        self._statement = self._build_query_statement()
 
-        return df.query(statement)
-
-    def _get_z_scores_dict(self) -> Dict[Field, float]:
-        if not isinstance(self.z_scores_abs, dict):
-            return {f: self.z_scores_abs for f in self.fields}
-
-        # Not using defaultdict because KeyErrors are actually helpful
-        dict_default = {f: self.Z_SCORE_ABS_DEFAULT for f in self.fields}
-        return {**dict_default, **self.z_scores_abs}
+        # Run query
+        return df.query(self._statement)
 
     def _build_query_statement(self) -> str:
-        statement_components = [f"({self._build_query_statement_component(f)})" for f in self.fields]
-        return " and ".join(statement_components)
+        statement_components = [self._build_query_statement_component(f, self.bounds[f]) for f in self._fields]
+        return " and ".join([f"({c})" for c in statement_components])
 
-    def _build_query_statement_component(self, field: Field) -> str:
-        # absolute z-score for default minimum & maximum
-        z_score_abs = self._z_scores_abs_dict[field]
-        # minimum (if specified)
-        minimum = self.minima.get(field)
-        # maximum (if specified)
-        maximum = self.maxima.get(field)
+    @staticmethod
+    def _build_query_statement_component(field: Field, field_bounds: Tuple[float, float]) -> str:
+        minimum, maximum = field_bounds
 
-        condition_minimum = (
-            f"{field} >= {minimum}"
-            if minimum is not None
-            else f"({field} - {field}.mean()) / {field}.std() >= {-z_score_abs}"
-        )
+        condition_min = f"{field} >= {minimum}" if minimum is not None else None
+        condition_max = f"{field} <= {maximum}" if maximum is not None else None
 
-        condition_maximum = (
-            f"{field} <= {maximum}"
-            if maximum is not None
-            else f"({field} - {field}.mean()) / {field}.std() <= {z_score_abs}"
-        )
-
-        return f"({condition_minimum}) and ({condition_maximum})"
+        return f"{condition_min or True} and {condition_max or True}"
 
     def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
         n_rows_in = df_in.shape[0]
@@ -178,7 +168,7 @@ class DeleteRowsOutlier(Preprocessor):
         n_rows_deleted = n_rows_in - n_rows_out
         logger.info(
             f"Deleted {n_rows_deleted:,} rows whose values are an outlier in at least "
-            + f"one of the following fields [{', '.join(self.fields)}]. "
+            + f"one of the following fields [{', '.join(self._fields)}]. "
             + f"They account for {n_rows_deleted / n_rows_in:.1%} of all input rows"
         )
 
