@@ -705,6 +705,9 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         # Create new target-label field, first set everything to False
         df[self.field_leads_to_newsletter_conversion] = False
 
+        # Create new newsletter-leading-event ID field, first set everything to NaN
+        df[self.field_newsletter_leading_event] = np.nan
+
         # Get a list of indices of events where a newsletter-form submission happens
         indices_newsletter_submission = df.query(self.field_form_submit_is_newsletter).index
 
