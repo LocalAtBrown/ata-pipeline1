@@ -724,6 +724,9 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                 # Increment count
                 self.num_leading_events += 1
 
+        # Force type of newsletter-leading-event ID field to str in case they're all NaNs
+        df[self.field_newsletter_leading_event] = df[self.field_newsletter_leading_event].astype(str)
+
         return df
 
     def _identify_leading_event(
