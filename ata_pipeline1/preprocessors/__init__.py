@@ -10,7 +10,6 @@ from ata_pipeline1.preprocessors.non_aggregate import (
     ClipRowsOutlier,
     ConvertFieldTypes,
     DeleteRowsOutlier,
-    ParseInternalReferrerUrls,
     ReclassifyInternalReferrals,
     ReclassifyNullReferrals,
     ReplaceValues,

@@ -29,6 +29,8 @@ class AggregatePageActivities(Preprocessor):
             FieldSnowplow.EVENT_NAME: (FieldSnowplow.EVENT_NAME, "first"),
             FieldSnowplow.PAGE_URLPATH: (FieldSnowplow.PAGE_URLPATH, "first"),
             FieldSnowplow.PAGE_REFERRER: (FieldSnowplow.PAGE_REFERRER, "first"),
+            FieldSnowplow.REFR_URLHOST: (FieldSnowplow.REFR_URLHOST, "first"),
+            FieldSnowplow.REFR_URLPATH: (FieldSnowplow.REFR_URLPATH, "first"),
             FieldSnowplow.REFR_MEDIUM: (FieldSnowplow.REFR_MEDIUM, "first"),
             FieldNew.DVCE_IS_MOBILE: (FieldNew.DVCE_IS_MOBILE, lambda x: x.mean() > 0.5),
             FieldNew.FORM_SUBMIT_IS_NEWSLETTER: (FieldNew.FORM_SUBMIT_IS_NEWSLETTER, lambda x: x.any()),

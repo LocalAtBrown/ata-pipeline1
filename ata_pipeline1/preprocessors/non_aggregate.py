@@ -2,7 +2,6 @@ import ast
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
-from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
@@ -474,7 +473,7 @@ class ReclassifyNullReferrals(Preprocessor):
     """
 
     site_domains: Set[SiteDomain]
-    field_referral_url: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_referral_urlhost: FieldSnowplow = FieldSnowplow.REFR_URLHOST
     field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
     num_false_positives: int = dataclass_field(default=0, repr=False)
     num_false_negatives: int = dataclass_field(default=0, repr=False)
@@ -502,10 +501,10 @@ class ReclassifyNullReferrals(Preprocessor):
         Row-level main reclassification logic.
         """
         referrer_medium = event.at[self.field_referral_medium]
-        referrer_url = urlparse(event.at[self.field_referral_url])
+        referrer_urlhost = event.at[self.field_referral_urlhost]
 
         referrer_medium_is_truthy = bool(referrer_medium)
-        referrer_url_is_valid = len(referrer_url.netloc) > 0  # There's probably a tighter way than checking length
+        referrer_url_is_valid = referrer_urlhost is not None and len(referrer_urlhost) > 0
 
         if not referrer_url_is_valid and not referrer_medium_is_truthy:
             # True positive: Medium is labeled NULL, and it in fact is NULL
@@ -534,7 +533,7 @@ class ReclassifyInternalReferrals(Preprocessor):
     """
 
     site_domains: Set[SiteDomain]
-    field_referral_url: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_refferal_urlhost: FieldSnowplow = FieldSnowplow.REFR_URLHOST
     field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
     num_false_positives: int = dataclass_field(default=0, repr=False)
     num_false_negatives: int = dataclass_field(default=0, repr=False)
@@ -566,9 +565,12 @@ class ReclassifyInternalReferrals(Preprocessor):
         if referrer_medium == EventReferrerMedium.NO_REFERRER:
             return referrer_medium
 
-        referrer_url = urlparse(event.at[self.field_referral_url])
+        referrer_urlhost = event.at[self.field_refferal_urlhost]
         referrer_url_matches_domain = any(
-            [domain.pattern.search(referrer_url.netloc) is not None for domain in self.site_domains]
+            [
+                referrer_urlhost is not None and domain.pattern.search(referrer_urlhost) is not None
+                for domain in self.site_domains
+            ]
         )
 
         if referrer_url_matches_domain and referrer_medium != EventReferrerMedium.INTERNAL:
@@ -581,46 +583,6 @@ class ReclassifyInternalReferrals(Preprocessor):
             return referrer_medium
         else:
             return referrer_medium
-
-
-@dataclass
-class ParseInternalReferrerUrls(Preprocessor):
-    """
-    For each event, given its referrer URL, returns the path if that URL
-    if it's internal.
-    """
-
-    field_referral_url: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
-    field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
-    num_internal_urls: int = dataclass_field(default=0, repr=False)
-
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        # Make a copy of the original so that it's not affected, but can remove
-        # this if memory is an issue
-        df = df.copy()
-
-        df[self.field_referral_url] = df.apply(self._parse, axis=1)
-
-        return df
-
-    def log_result(self, df_in: pd.DataFrame, df_out=None) -> None:
-        logger.info(
-            f"Extracted path from the referral URL of {self.num_internal_urls} ({self.num_internal_urls / df_in.shape[0]:.1%}) "
-            + "internally referred events"
-        )
-
-    def _parse(self, event: pd.Series) -> str:
-        referrer_url = event[self.field_referral_url]
-        referrer_medium = event[self.field_referral_medium]
-
-        # If not internal referral, do nothing
-        # This means this preprocessor should be placed after ReclassifyNullReferrals
-        # and ReclassifyInternalReferrals
-        if referrer_medium != EventReferrerMedium.INTERNAL:
-            return referrer_url
-
-        self.num_internal_urls += 1
-        return urlparse(referrer_url).path
 
 
 @dataclass
@@ -688,7 +650,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     field_timestamp: FieldSnowplow = FieldSnowplow.DERIVED_TSTAMP
     field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
     field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
-    field_referrer: FieldSnowplow = FieldSnowplow.PAGE_REFERRER
+    field_referrer_urlpath: FieldSnowplow = FieldSnowplow.REFR_URLPATH
     field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
     field_page_urlpath: FieldSnowplow = FieldSnowplow.PAGE_URLPATH
     field_user_session_event_idx: FieldNew = FieldNew.DOMAIN_SESSION_EVENTIDX
@@ -782,7 +744,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
         user_id, original_user_session_idx, original_user_session_event_idx = original_index
 
         # Original's referral URL path
-        original_referral_urlpath = df.at[original_index, self.field_referrer]
+        original_referral_urlpath = df.at[original_index, self.field_referrer_urlpath]
 
         # Whether original's referral URL path points to a newsletter-dedicated page.
         # We create a small pandas Series mocking an event with timestamp & URL path and
