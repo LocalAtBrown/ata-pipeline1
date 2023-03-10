@@ -2,12 +2,12 @@ from typing import Any
 
 import pandas as pd
 
+from ata_pipeline1.helpers.dataclasses import FormSubmitData
 from ata_pipeline1.helpers.datetime import TIMESTAMP_POSIX
 from ata_pipeline1.helpers.enums import FieldSnowplow
 from ata_pipeline1.site.newsletter.base import (
     SiteNewsletterSignupValidator,
     SiteNewsletterSignupValidatorComponent,
-    parse_form_submit_dict,
 )
 
 
@@ -21,7 +21,7 @@ class ComponentZero(SiteNewsletterSignupValidatorComponent):
         """
         Checks if the HTML form is an inline Mailchimp newsletter form.
         """
-        form_data = parse_form_submit_dict(event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT])
+        form_data: FormSubmitData = event.at[FieldSnowplow.SEMISTRUCT_FORM_SUBMIT]
         return form_data.form_id == "mc-embedded-subscribe-form"
 
     def validate(self, event: "pd.Series[Any]") -> bool:

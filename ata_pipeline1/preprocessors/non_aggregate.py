@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import user_agents as ua
 
+from ata_pipeline1.helpers.dataclasses import FormSubmitData, parse_form_submit_dict
 from ata_pipeline1.helpers.enums import (
     EventName,
     EventReferrerMedium,
@@ -112,6 +113,99 @@ class AddFieldMaxScrollDepth(Preprocessor):
 
     def log_result(self, df_in=None, df_out=None) -> None:
         logger.info("Calculated scroll depths and added them to a new field")
+
+
+@dataclass
+class ConvertFieldFormSubmitToDataclass(Preprocessor):
+    """
+    Convert the form-submission data field from dict to corresponding dataclass.
+    """
+
+    field_form_submit_data: FieldSnowplow = FieldSnowplow.SEMISTRUCT_FORM_SUBMIT
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Make a copy of the original so that it's not affected, but can remove
+        # this if memory is an issue
+        df = df.copy()
+
+        df[self.field_form_submit_data] = df[self.field_form_submit_data].apply(self._convert)
+
+        return df
+
+    def _convert(self, form_submit_data: Optional[Dict[str, Any]]) -> Optional[FormSubmitData]:
+        if form_submit_data is None:
+            return None
+
+        return parse_form_submit_dict(form_submit_data)
+
+    def log_result(self, df_in=None, df_out=None) -> None:
+        logger.info(f"Converted the {self.field_form_submit_data} field to a Series of form-submission dataclasses")
+
+
+@dataclass
+class DeleteUsersTooManyNewsletterSubmissions(Preprocessor):
+    """
+    Delete any user who, in a single session, submits the newsletter form
+    too often.
+
+    This preprocessor was created in response to a bot problem The 19th was
+    facing, but, theoretically, it can happen to any partner.
+    """
+
+    field_form_submit_is_newsletter: FieldNew = FieldNew.FORM_SUBMIT_IS_NEWSLETTER
+    field_form_submit_data: FieldSnowplow = FieldSnowplow.SEMISTRUCT_FORM_SUBMIT
+    field_user_id: FieldSnowplow = FieldSnowplow.DOMAIN_USERID
+    field_user_session_idx: FieldSnowplow = FieldSnowplow.DOMAIN_SESSIONIDX
+    # For demonstration of how the values below were derived,
+    # refer to the Appendix_Multiple_Newsletter_Signup notebook
+    max_newsletter_submissions_per_session: int = 3
+    # The "uniqueness" of a newsletter-form submission is determined via its input email address
+    max_unique_newsletter_submissions_per_session: int = 1
+
+    # Private variables & constants
+    _FIELD_NUM_SUBMISSIONS = "num_submissions"
+    _FIELD_NUM_SUBMISSIONS_UNIQUE = "num_submissions_unique"
+    _num_users_deleted: int = dataclass_field(init=False, repr=False)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Count newsletter-form submissions per user-session
+        df_submission_counts = (
+            df.query(f"{self.field_form_submit_is_newsletter} == True")
+            .groupby([self.field_user_id, self.field_user_session_idx])[self.field_form_submit_data]
+            .aggregate(
+                **{
+                    self._FIELD_NUM_SUBMISSIONS: "size",
+                    self._FIELD_NUM_SUBMISSIONS_UNIQUE: self._count_unique_submissions_in_session,
+                }
+            )
+        )
+
+        # Identify users to delete
+        users_to_delete = df_submission_counts.query(
+            f"({self._FIELD_NUM_SUBMISSIONS} > {self.max_newsletter_submissions_per_session}) or "
+            + f"({self._FIELD_NUM_SUBMISSIONS_UNIQUE} > {self.max_unique_newsletter_submissions_per_session})"
+        ).index.get_level_values(self.field_user_id)
+
+        self._num_users_deleted = len(users_to_delete)
+
+        # Delete users
+        return df.set_index(self.field_user_id).drop(users_to_delete).reset_index()
+
+    @staticmethod
+    def _count_unique_submissions_in_session(session_submission_data: "pd.Series[Dict]"):
+        return session_submission_data.apply(lambda x: [e for e in x.elements if e.type == "email"][0].value).nunique()
+
+    def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
+        num_users = df_in[self.field_user_id].nunique()
+        num_rows = df_in.shape[0]
+        num_rows_deleted = num_rows - df_out.shape[0]
+        logger.info(
+            f"Removed {self._num_users_deleted:,} users who submit a newsletter form "
+            + f"more than {self.max_newsletter_submissions_per_session:,} times or "
+            + f"with more than {self.max_unique_newsletter_submissions_per_session:,} unique email addresses in any one session. "
+            + f"They account for {self._num_users_deleted / num_users:.1%} of all users "
+            + f"and {num_rows_deleted:,} ({num_rows_deleted / num_rows:.1%}) rows in the input DataFrame."
+        )
 
 
 @dataclass
@@ -475,8 +569,10 @@ class ReclassifyNullReferrals(Preprocessor):
     site_domains: Set[SiteDomain]
     field_referral_urlhost: FieldSnowplow = FieldSnowplow.REFR_URLHOST
     field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
-    num_false_positives: int = dataclass_field(default=0, repr=False)
-    num_false_negatives: int = dataclass_field(default=0, repr=False)
+
+    # Private variables
+    _num_false_positives: int = dataclass_field(default=0, repr=False)
+    _num_false_negatives: int = dataclass_field(default=0, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         # Make a copy of the original so that it's not affected, but can remove
@@ -492,8 +588,8 @@ class ReclassifyNullReferrals(Preprocessor):
 
     def log_result(self, df_in: pd.DataFrame, df_out=None) -> None:
         logger.info(
-            f"Replaced referral medium of {self.num_false_negatives} ({self.num_false_negatives / df_in.shape[0]:.1%}) non-null-medium events to 'no_referrer' and "
-            + f"of {self.num_false_positives} ({self.num_false_positives / df_in.shape[0]:.1%}) of previously null-medium events to 'unknown'"
+            f"Replaced referral medium of {self._num_false_negatives} ({self._num_false_negatives / df_in.shape[0]:.1%}) non-null-medium events to 'no_referrer' and "
+            + f"of {self._num_false_positives} ({self._num_false_positives / df_in.shape[0]:.1%}) of previously null-medium events to 'unknown'"
         )
 
     def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
@@ -512,14 +608,14 @@ class ReclassifyNullReferrals(Preprocessor):
             return EventReferrerMedium.NO_REFERRER
         elif not referrer_url_is_valid and referrer_medium_is_truthy:
             # False negative: Medium is labeled not NULL, but it in fact is NULL
-            self.num_false_negatives += 1
+            self._num_false_negatives += 1
             return EventReferrerMedium.NO_REFERRER
         elif referrer_url_is_valid and not referrer_medium_is_truthy:
             # False positive: Medium is labeled NULL, but it in fact is not NULL
             # There's probably a better way to handle false positives than assigning unknown,
             # but given the small percentage of this happening (< 0.1% of all aggregated events),
             # this is fine for now
-            self.num_false_positives += 1
+            self._num_false_positives += 1
             return EventReferrerMedium.UNKNOWN
         else:
             return referrer_medium
@@ -535,8 +631,10 @@ class ReclassifyInternalReferrals(Preprocessor):
     site_domains: Set[SiteDomain]
     field_refferal_urlhost: FieldSnowplow = FieldSnowplow.REFR_URLHOST
     field_referral_medium: FieldSnowplow = FieldSnowplow.REFR_MEDIUM
-    num_false_positives: int = dataclass_field(default=0, repr=False)
-    num_false_negatives: int = dataclass_field(default=0, repr=False)
+
+    # Private variables
+    _num_false_positives: int = dataclass_field(default=0, repr=False)
+    _num_false_negatives: int = dataclass_field(default=0, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         # Make a copy of the original so that it's not affected, but can remove
@@ -552,7 +650,7 @@ class ReclassifyInternalReferrals(Preprocessor):
 
     def log_result(self, df_in: pd.DataFrame, df_out=None) -> None:
         logger.info(
-            f"Replaced referral medium of {self.num_false_negatives} ({self.num_false_negatives / df_in.shape[0]:.1%}) events to 'internal'."
+            f"Replaced referral medium of {self._num_false_negatives} ({self._num_false_negatives / df_in.shape[0]:.1%}) events to 'internal'."
         )
 
     def _reclassify(self, event: pd.Series) -> EventReferrerMedium:
@@ -575,7 +673,7 @@ class ReclassifyInternalReferrals(Preprocessor):
 
         if referrer_url_matches_domain and referrer_medium != EventReferrerMedium.INTERNAL:
             # Handle false negatives: medium is labeled not internal, but it in fact is
-            self.num_false_negatives += 1
+            self._num_false_negatives += 1
             return EventReferrerMedium.INTERNAL
         elif not referrer_url_matches_domain and referrer_medium == EventReferrerMedium.INTERNAL:
             # False positive: medium is labeled internal, but it in fact is not
@@ -658,7 +756,9 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
     field_page_is_newsletter: FieldNew = FieldNew.PAGE_IS_NEWSLETTER
     field_leads_to_newsletter_conversion: FieldNew = FieldNew.LEAD_TO_NEWSLETTER_CONVERSION
     field_newsletter_leading_event: FieldNew = FieldNew.NEWSLETTER_LEADING_EVENT
-    num_leading_events: int = dataclass_field(default=0, repr=False)
+
+    # Private variables
+    _num_leading_events: int = dataclass_field(default=0, repr=False)
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         # Index should already be changed to user-session-event MultiIndex and
@@ -684,7 +784,7 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
                     event_leading_index, self.field_event_id
                 ]
                 # Increment count
-                self.num_leading_events += 1
+                self._num_leading_events += 1
 
         # Force type of newsletter-leading-event ID field to str in case they're all NaNs
         df[self.field_newsletter_leading_event] = df[self.field_newsletter_leading_event].astype(str)
@@ -829,9 +929,9 @@ class AddFieldLeadsToNewsletterConversion(Preprocessor):
 
     def log_result(self, df_in: pd.DataFrame, df_out: pd.DataFrame) -> None:
         logger.info(
-            f"Identified {self.num_leading_events} events as leading to a newsletter subscription. "
-            + f"They account for {self.num_leading_events / df_out.shape[0]:.1%} of all aggregated page events "
-            + f"and {self.num_leading_events / df_in[self.field_form_submit_is_newsletter].sum():.1%} of aggregated page events where a newsletter form submission happens"
+            f"Identified {self._num_leading_events} events as leading to a newsletter subscription. "
+            + f"They account for {self._num_leading_events / df_out.shape[0]:.1%} of all aggregated page events "
+            + f"and {self._num_leading_events / df_in[self.field_form_submit_is_newsletter].sum():.1%} of aggregated page events where a newsletter form submission happens"
         )
 
 
