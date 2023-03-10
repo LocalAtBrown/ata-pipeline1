@@ -188,8 +188,12 @@ class DeleteUsersTooManyNewsletterSubmissions(Preprocessor):
 
         self._num_users_deleted = len(users_to_delete)
 
-        # Delete users
-        return df.set_index(self.field_user_id).drop(users_to_delete).reset_index()
+        # Delete users using indexing
+        original_fields_index = df.index.names  # Remember what previous index is because gonna have to change it
+        df = df.reset_index().set_index(self.field_user_id)
+        return (
+            df[~df.index.isin(users_to_delete)].reset_index().set_index(original_fields_index)
+        )  # Set back to previous index
 
     @staticmethod
     def _count_unique_submissions_in_session(session_submission_data: "pd.Series[Dict]"):
